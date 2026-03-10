@@ -6,3 +6,4 @@ python-dotenv
 openai
 reportlab
 python-docx
+openpyxl
