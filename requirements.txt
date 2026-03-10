@@ -5,4 +5,4 @@ seaborn
 python-dotenv
 openai
 reportlab
-pyhon-docx
+python-docx
