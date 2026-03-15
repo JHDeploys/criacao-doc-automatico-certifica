@@ -7,3 +7,4 @@ openai
 reportlab
 python-docx
 openpyxl
+tabulate
