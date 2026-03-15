@@ -183,7 +183,7 @@ for coluna in col_alvo:
 # ======================================================
 # 📊 Gráficos por Sexo
 # ======================================================
-st.subheader("🧑👩 Gráficos por Sexo")
+st.subheader("🧑👩 Gráficos por Cruzamento Social")
 
 for coluna in col_alvo:
     title = criar_title_graf(coluna)
@@ -215,7 +215,7 @@ for coluna in col_alvo:
         salvar_grafico(
         st.session_state.graficos_doc_questoes,
         "cruzamento",
-        f"CRUZAMENTO: {titulo} X {nome_var}",
+        f"CRUZAMENTO: {title} X {nome_var}",
         graf
     )
 
