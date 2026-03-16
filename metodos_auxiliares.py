@@ -25,7 +25,6 @@ def ler_arquivo(arquivo):
         
         else:
             return st.error("Formato de arquivo não suportado. Por favor, envie um arquivo CSV ou XLSX.")
-        return None
     
     except Exception as e:
         st.error("Erro ao ler o arquivo: {e}")
