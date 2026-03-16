@@ -17,7 +17,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📊 Gráficos Espontâneos e Estimulados")
+st.title("📊 Gráficos e Tabelas Espontâneos e Estimulados")
 
 PAGINA_ESPONTANEA = "espontanea"
 PAGINA_ESTIMULADA = "estimulada"
