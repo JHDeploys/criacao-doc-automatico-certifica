@@ -157,7 +157,8 @@ def inserir_tabela_normal_doc(doc, df, largura_total=None):
             p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
             for r in p.runs:
                 r.bold = True
-                r.font.size = Pt(11)
+                r.font.size = Pt(10)
+                r.font.name = "Roboto Condensed"
                 r.font.color.rgb = RGBColor(255, 255, 255)
 
     # Body
@@ -173,6 +174,7 @@ def inserir_tabela_normal_doc(doc, df, largura_total=None):
                 p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
                 for r in p.runs:
                     r.font.size = Pt(10)
+                    r.font.name = "Roboto Condensed"
 
     finalize_autofit(table)
     return table
@@ -205,7 +207,8 @@ def inserir_tabela_cruzamento_doc(doc, df, largura_total=None):
             p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
             for r in p.runs:
                 r.bold = True
-                r.font.size = Pt(11)
+                r.font.size = Pt(10)
+                r.font.name = "Roboto Condensed"
                 r.font.color.rgb = RGBColor(255, 255, 255)
 
     total_linha_idx = rows - 1  # última linha
@@ -233,7 +236,7 @@ def inserir_tabela_cruzamento_doc(doc, df, largura_total=None):
             if col >= 1 and total_linha and total_linha > 0:
                 try:
                     v = float(str(valor).replace(",", "."))
-                    texto = f"{(v / total_linha) * 100:.1f}%"
+                    texto = f"{(v / total_linha) * 100:.0f}%"
                 except Exception:
                     texto = str(valor)
             else:
@@ -247,6 +250,7 @@ def inserir_tabela_cruzamento_doc(doc, df, largura_total=None):
                 p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER if col >= 1 else WD_PARAGRAPH_ALIGNMENT.LEFT
                 for r in p.runs:
                     r.font.size = Pt(10)
+                    r.font.name = "Roboto Condensed"
                     if is_total:
                         r.bold = True
                         r.font.color.rgb = RGBColor(255, 255, 255)
@@ -815,19 +819,19 @@ def add_topic(doc, titulo: str, texto: str):
     # Re-aplicamos a formatação visual (porque o estilo Heading do Word costuma ser azul/grande)
     r = p.runs[0]
     r.bold = True
-    r.font.size = Pt(12)
+    r.font.size = Pt(11)
     r.font.color.rgb = RGBColor(2, 18, 74) # Azul Marinho da sua logo
-    r.font.name = "Arial"
+    r.font.name = "Roboto Condensed"
 
     # Conteúdo do tópico
     for linha in texto.strip().split("\n"):
         if not linha.strip(): continue
         p2 = doc.add_paragraph(linha)
         p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        p2.paragraph_format.first_line_indent = Inches(0.5)
+        #p2.paragraph_format.first_line_indent = Inches(0.5)
         for run in p2.runs:
             run.font.size = Pt(11)
-            run.font.name = "Arial"
+            run.font.name = "Roboto Condensed"
 
 
 def criar_especificacoes_tecnicas(doc, cabecalho_secao=None):
@@ -963,7 +967,7 @@ def gerar_relatorio_docx(cabecalho: str, titulo_subcapa: str) -> BytesIO:
             r.font.color.rgb = RGBColor(2, 18, 74) # Azul Marinho da sua logo
             r.font.name = "Arial"
 
-            if re.search(r"(estimulada|cruzamento|obj)", titulo.lower()):
+            if re.search(r"(estimulada|cruzamento)", titulo.lower()):
                 tabela = inserir_tabela_cruzamento_doc(doc, df)
             else:
                 tabela = inserir_tabela_normal_doc(doc, df)
