@@ -109,7 +109,7 @@ st.info(f"Colunas abertas identificadas: {df_abt}")
 outras = [c for c in df_abt if c != "COLUNA INEXISTENTE"]
 
 for coluna in outras:
-    titulo = criar_title_graf(coluna)
+    #titulo = criar_title_graf(coluna)
     st.markdown(f"## 🔍 Analisando a coluna: **{coluna}**")
     tabelas, interpretacoes = func_tab_interpretacao_abt(
         df,
@@ -121,7 +121,7 @@ for coluna in outras:
     salvar_tabela(
         st.session_state.tabelas_doc_abertas,
         "abertas",
-        f"{titulo}",
+        f"{coluna}",
         tabelas.data,
         interpretacoes
     )
