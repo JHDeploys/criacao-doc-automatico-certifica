@@ -143,7 +143,7 @@ st.divider()
 st.subheader("📍 Cruzamento por Localidades")
 
 for coluna in col_alvo:
-    titulo = criar_title_graf(coluna)
+    #titulo = criar_title_graf(coluna)
     st.info(coluna)
 
     df_doc, tabela = agrupar_tabelas(df, localidades, coluna)
@@ -152,7 +152,8 @@ for coluna in col_alvo:
     salvar_tabela(
         st.session_state.tabelas_doc_localidades,
         "cruzamento",
-        f"CRUZAMENTO: {titulo} X BAIRROS",
+        #f"CRUZAMENTO: {coluna} X BAIRROS",
+        coluna,
         df_doc
     )
 
@@ -165,7 +166,7 @@ for coluna in col_alvo:
 st.subheader("🧑 Cruzamento por Questões Sociais")
 
 for coluna in col_alvo:
-    titulo = criar_title_graf(coluna)
+    #titulo = criar_title_graf(coluna)
     st.info(coluna)
 
     df_doc, tabela = agrupar_tabelas(df, sociais, coluna)
@@ -174,7 +175,8 @@ for coluna in col_alvo:
     salvar_tabela(
         st.session_state.tabelas_doc_questoes,
         "cruzamento",
-        f"CRUZAMENTO: {titulo}",
+        #f"CRUZAMENTO: {coluna}",
+        coluna,
         df_doc
     )
 
@@ -186,7 +188,7 @@ for coluna in col_alvo:
 st.subheader("🧑👩 Gráficos por Cruzamento Social")
 
 for coluna in col_alvo:
-    title = criar_title_graf(coluna)
+    #title = criar_title_graf(coluna)
     def ajustar_variavel_plot(df, variavel, coluna):
         df_doc, _ = agrupar_tabelas(df, variavel, coluna)
 
@@ -215,7 +217,8 @@ for coluna in col_alvo:
         salvar_grafico(
         st.session_state.graficos_doc_questoes,
         "cruzamento",
-        f"CRUZAMENTO: {title} X {nome_var}",
+        #f"CRUZAMENTO: {coluna} X {nome_var}",
+        f"{coluna} X {nome_var}",
         graf
     )
 
@@ -242,8 +245,8 @@ def bloco_cruzamento(idx):
 
     if variaveis and cruzamentos:
         for col in cruzamentos:
-            titulo = f"{variaveis} X {col}"
-            st.info(titulo)
+            #titulo = f"{variaveis} X {col}"
+            st.info(col)
 
             df_doc, tabela = agrupar_tabelas(df, variaveis, col)
             st.dataframe(tabela)
@@ -251,7 +254,7 @@ def bloco_cruzamento(idx):
             salvar_tabela(
                 st.session_state.tabelas_doc_intencoes,
                 "cruzamento",
-                titulo,
+                col,
                 df_doc
             )
 
