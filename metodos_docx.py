@@ -656,7 +656,7 @@ def criar_subcapa_doc(doc, path_esquerda, path_direita, titulo, espacamento_titl
     run_tit = p_titulo.add_run(str(titulo))
     run_tit.bold = True
     run_tit.font.size = Pt(30)
-    font_name = "Arial"
+    font_name = "Roboto Condensed"
     run_tit.font.name = font_name
     run_tit.font.color.rgb = RGBColor(0, 51, 103)
     rFonts = run_tit._element.rPr.get_or_add_rFonts()
@@ -747,10 +747,10 @@ def inserir_sumario_automatico(doc, titulo="SUMÁRIO"):
         except KeyError:
             style = doc.styles.add_style(style_name, WD_STYLE_TYPE.PARAGRAPH)
         
-        style.font.name = "Arial"
+        style.font.name = "Roboto Condensed"
         style.font.size = Pt(12)
         style.font.bold = True 
-        style.paragraph_format.line_spacing = 1.15
+        style.paragraph_format.line_spacing = 1.0
         style.paragraph_format.space_after = Pt(6)
 
     # 2. TÍTULO COM ESPAÇAMENTO DE 20 PT ABAIXO
@@ -799,6 +799,7 @@ def inserir_sumario_automatico(doc, titulo="SUMÁRIO"):
         "Nota: Se o sumário aparecer desatualizado, ou não aparecer,  use Ctrl+A e depois F9 para atualizar tudo."
     )
     p_instr.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_instr.paragraph_format.line_spacing = 1.0
     p_instr.runs[0].italic = True
     p_instr.runs[0].font.size = Pt(10)
     p_instr.runs[0].font.color.rgb = RGBColor(128, 128, 128)
@@ -815,6 +816,7 @@ def add_topic(doc, titulo: str, texto: str):
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     p.paragraph_format.space_before = Pt(12)
     p.paragraph_format.space_after = Pt(6)
+    p.paragraph_format.line_spacing = 1.0
 
     # Re-aplicamos a formatação visual (porque o estilo Heading do Word costuma ser azul/grande)
     r = p.runs[0]
@@ -830,7 +832,7 @@ def add_topic(doc, titulo: str, texto: str):
         p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         #p2.paragraph_format.first_line_indent = Inches(0.5)
         for run in p2.runs:
-            run.font.size = Pt(11)
+            run.font.size = Pt(10)
             run.font.name = "Roboto Condensed"
 
 
@@ -930,7 +932,7 @@ def gerar_relatorio_docx(cabecalho: str, titulo_subcapa: str) -> BytesIO:
             r.bold = True
             r.font.size = Pt(12)
             r.font.color.rgb = RGBColor(2, 18, 74) # Azul Marinho da sua logo
-            r.font.name = "Arial"
+            r.font.name = "Roboto Condensed"
 
             img = BytesIO()
             grafico.savefig(img, format="png", bbox_inches="tight")
@@ -965,7 +967,7 @@ def gerar_relatorio_docx(cabecalho: str, titulo_subcapa: str) -> BytesIO:
             r.bold = True
             r.font.size = Pt(12)
             r.font.color.rgb = RGBColor(2, 18, 74) # Azul Marinho da sua logo
-            r.font.name = "Arial"
+            r.font.name = "Roboto Condensed"
 
             if re.search(r"(estimulada|cruzamento)", titulo.lower()):
                 tabela = inserir_tabela_cruzamento_doc(doc, df)
