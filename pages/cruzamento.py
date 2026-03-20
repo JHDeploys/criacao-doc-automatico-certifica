@@ -221,30 +221,16 @@ for coluna in col_alvo:
         )
         return df_plot
 
-    variaveis = []
-    nomes_variaveis = []
+    map_vars = {
+    "SEXO": sexo,
+    "IDADE": idade,
+    "RELIGIÃO": religiao,
+    "ESCOLARIDADE": escolaridade,
+    "RENDA": renda
+}
 
-    if len(sexo) > 0:
-        variaveis.append(sexo)
-        nomes_variaveis.append("SEXO")
-
-    if len(idade) > 0:
-        variaveis.append(idade)
-        nomes_variaveis.append("IDADE")
-
-    if len(religiao) > 0:
-        variaveis.append(religiao)
-        nomes_variaveis.append("RELIGIÃO")
-
-    if len(escolaridade) > 0:
-        variaveis.append(escolaridade)
-        nomes_variaveis.append("ESCOLARIDADE")
-
-    if len(renda) > 0:
-        variaveis.append(renda)
-        nomes_variaveis.append("RENDA")
-
-    
+    variaveis = [v for v in map_vars.values() if len(v) > 0]
+    nomes_variaveis = [k for k, v in map_vars.items() if len(v) > 0]
 
     for var, nome_var in zip(variaveis, nomes_variaveis):
         df_plot = ajustar_variavel_plot(df, var, coluna)
