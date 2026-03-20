@@ -114,18 +114,35 @@ st.divider()
 bairros = df.columns[df.columns.str.lower().str.contains("bairro")]
 zonas = df.columns[df.columns.str.lower().str.contains("zona")]
 localidades = pd.Index(list(bairros) + list(zonas))
+df[localidades] = df[localidades].apply(
+    lambda x: x.astype(str)
+               .str.strip()
+               .str.replace(r"(?i)^\s*\(outros?\)\s*", "", regex=True)
+               .str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
+               .str.replace(r"\s+", " ", regex=True)
+               .str.strip()
+)
 
 sexo = df.columns[df.columns.str.lower().str.contains("sexo|genero|gênero")]
 idade = df.columns[df.columns.str.lower().str.contains(r"^idade$|faixa etaria|faixa etária|quantos anos|qual sua idade")]
 escolaridade = df.columns[df.columns.str.lower().str.contains("escolaridade|escola")]
 renda = df.columns[df.columns.str.lower().str.contains("renda")]
-sociais = pd.Index(list(sexo) + list(idade) + list(escolaridade) + list(renda))
+religiao = df.columns[df.columns.str.lower().str.contains(r"religi[aã]o", case=False, regex=True)]
+sociais = pd.Index(list(sexo) + list(idade) + list(religiao) + list(escolaridade) + list(renda)).unique()
+df[sociais] = df[sociais].apply(
+    lambda x: x.astype(str)
+               .str.strip()
+               .str.replace(r"(?i)^\s*\(outros?\)\s*", "", regex=True)
+               .str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
+               .str.replace(r"\s+", " ", regex=True)
+               .str.strip()
+)
 
 variaveis_excluir = df.columns[df.columns.str.lower().str.contains(
     "data|duracao|duração|latitude|longitude|usuario|bom dia|boa tarde|boa noite|"
     "entrevistador|localizacao|localização|audio|áudio|usuário|longitud|abt|"
     "espontanea|espontânea|zona|bairro|sexo|genero|gênero|idade|faixa etaria|"
-    "faixa etária|escolaridade|escola|renda|vota em"
+    "faixa etária|escolaridade|escola|renda|vota em|religiao|religião"
 )]
 
 colunas_base = df.columns[df.columns.isin(localidades) | df.columns.isin(sociais)]
@@ -204,8 +221,30 @@ for coluna in col_alvo:
         )
         return df_plot
 
-    variaveis = [sexo, idade, escolaridade, renda]
-    nomes_variaveis = ["SEXO", "IDADE", "ESCOLARIDADE", "RENDA"]
+    variaveis = []
+    nomes_variaveis = []
+
+    if len(sexo) > 0:
+        variaveis.append(sexo)
+        nomes_variaveis.append("SEXO")
+
+    if len(idade) > 0:
+        variaveis.append(idade)
+        nomes_variaveis.append("IDADE")
+
+    if len(religiao) > 0:
+        variaveis.append(religiao)
+        nomes_variaveis.append("RELIGIÃO")
+
+    if len(escolaridade) > 0:
+        variaveis.append(escolaridade)
+        nomes_variaveis.append("ESCOLARIDADE")
+
+    if len(renda) > 0:
+        variaveis.append(renda)
+        nomes_variaveis.append("RENDA")
+
+    
 
     for var, nome_var in zip(variaveis, nomes_variaveis):
         df_plot = ajustar_variavel_plot(df, var, coluna)
