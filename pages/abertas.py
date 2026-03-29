@@ -94,7 +94,10 @@ st.divider()
 
 
 df_abt = df.columns[df.columns.str.lower().str.contains("abt")].tolist()
-st.info(f"Colunas abertas identificadas: {df_abt}")
+if len(abt) > 0:
+    st.info(f"Colunas abertas identificadas: {df_abt}")
+else:
+    st.info("Nenhuma coluna aberta presente na base de dados")
 
 # ======================================================
 # 🧩 Demais perguntas abertas
