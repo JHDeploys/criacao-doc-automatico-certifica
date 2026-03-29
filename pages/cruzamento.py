@@ -107,7 +107,6 @@ st.subheader("📄 Prévia do Dataset")
 st.dataframe(df.head())
 st.divider()
 
-st.write(df.columns)
 
 # ======================================================
 # 🔎 Identificação de colunas
