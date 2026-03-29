@@ -98,6 +98,7 @@ if len(df_abt) > 0:
     st.info(f"Colunas abertas identificadas: {df_abt}")
 else:
     st.info("Nenhuma coluna aberta presente na base de dados")
+    st.stop()
 
 # ======================================================
 # 🧩 Demais perguntas abertas
