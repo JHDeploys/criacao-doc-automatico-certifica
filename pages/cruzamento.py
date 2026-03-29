@@ -107,11 +107,12 @@ st.subheader("📄 Prévia do Dataset")
 st.dataframe(df.head())
 st.divider()
 
+st.write(df.columns)
 
 # ======================================================
 # 🔎 Identificação de colunas
 # ======================================================
-bairros = df.columns[df.columns.str.lower().str.contains("bairro")]
+bairros = [bairro for bairro in df.columns if "bairro" in bairro.lower() and "você mora neste bairro" not in bairro.lower()]
 zonas = df.columns[df.columns.str.lower().str.contains("zona")]
 localidades = pd.Index(list(bairros) + list(zonas))
 df[localidades] = df[localidades].apply(
@@ -142,7 +143,9 @@ variaveis_excluir = df.columns[df.columns.str.lower().str.contains(
     "data|duracao|duração|latitude|longitude|usuario|bom dia|boa tarde|boa noite|"
     "entrevistador|localizacao|localização|audio|áudio|usuário|longitud|abt|"
     "espontanea|espontânea|zona|bairro|sexo|genero|gênero|idade|faixa etaria|"
-    "faixa etária|escolaridade|escola|renda|vota em|religiao|religião"
+    "faixa etária|escolaridade|escola|renda|vota em|religiao|religião|bom dia|boa tarde|" \
+    "boa noite|bom dia/boa tarde|bom dia/boa noite|boa tarde/boa noite|voce mora neste bairro|você mora neste bairro|você mora neste bairro|voce mora neste bairro|você mora neste zona|voce mora neste zona",
+    case=False, regex=True
 )]
 
 colunas_base = df.columns[df.columns.isin(localidades) | df.columns.isin(sociais)]
