@@ -92,11 +92,6 @@ st.subheader("📄 Prévia do Dataset")
 st.dataframe(df.head())
 st.divider()
 
-# ======================================================
-# 🔎 Identificação de colunas
-# ======================================================
-filt = df.columns[df.columns.str.contains(r"(?=.*prefeito)(?=.*vot)", case=False)]
-prefeito = limpar_nome_coluna(filt[0])
 
 df_abt = df.columns[df.columns.str.lower().str.contains("abt")].tolist()
 st.info(f"Colunas abertas identificadas: {df_abt}")
