@@ -151,4 +151,4 @@ with step4:
 st.divider()
 
 # --- RODAPÉ ---
-st.markdown("<p style='text-align: center; color: gray; font-size: 0.8rem;'>Sistema desenvolvido para Certifica Pesquisas © 2026</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: gray; font-size: 0.8rem;'>Sistema desenvolvido para Certifica Consultoria e Pesquisas © 2026</p>", unsafe_allow_html=True)
