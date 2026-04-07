@@ -126,7 +126,7 @@ with step2:
     <div class="step-box">
         <h2>2️⃣</h2>
         <h4>Limpeza</h4>
-        <p>O sistema limpa automaticamente os dados brutos para garantir qualidade e consistência.</p>
+        <p>Limpeza automatica dos dados brutos para garantir qualidade e consistência.</p>
     </div>
     """, unsafe_allow_html=True)
 
