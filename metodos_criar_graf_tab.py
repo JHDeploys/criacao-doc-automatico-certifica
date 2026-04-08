@@ -34,7 +34,7 @@ def grafico_barras_espontanea(df, coluna, title):
         plt.text(
             width + (ax.get_xlim()[1] * 0.005),
             bar.get_y() + bar.get_height() / 2,
-            f"{width:.1f}%",
+            f"{width:.0f}%",
             va="center", ha="left",
             fontsize=20, fontweight="bold"
         )
@@ -109,7 +109,7 @@ def grafico_barras_estimulada(df, colum, title):
         ax.text(
             x_pos,
             height + 0.5,
-            f"{height:.1f}%",
+            f"{height:.0f}%",
             ha="center", va="bottom", fontsize=20, fontweight="bold"
         )
     
