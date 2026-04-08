@@ -163,7 +163,7 @@ def inserir_tabela_normal_doc(doc, df, largura_total=None):
 
     # Body
     for row in range(rows):
-        cor = "c6dbef" if row % 2 == 0 else "FFFFFF"
+        cor = "FFFFFF" if row % 2 == 0 else "c6dbef"
         for col in range(cols):
             cell = table.cell(row + 1, col)
             cell.text = str(df.iloc[row, col])
@@ -215,7 +215,7 @@ def inserir_tabela_cruzamento_doc(doc, df, largura_total=None):
 
     for row in range(rows):
         is_total = (row == total_linha_idx)
-        cor_fundo = "02124A" if is_total else ("c6dbef" if row % 2 == 0 else "FFFFFF")
+        cor_fundo = "02124A" if is_total else ("FFFFFF" if row % 2 == 0 else "c6dbef")
 
         # Total da linha (para %)
         total_linha = None
