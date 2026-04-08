@@ -136,11 +136,11 @@ df[espontaneas] = (df[espontaneas]
 
 for col in espontaneas:
     #title = criar_title_graf(col)
-    is_prefeito = bool(re.search("prefeito|prefeita", col.lower()))
+    #is_prefeito = bool(re.search("prefeito|prefeita", col.lower()))
 
     st.write(col)
 
-    if is_prefeito:
+    if df[col].nunique() <= 5:
         grafico = grafico_barras_espontanea(df, col, col)
         st.pyplot(grafico)
 
