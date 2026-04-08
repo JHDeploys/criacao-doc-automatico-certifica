@@ -925,13 +925,11 @@ def gerar_relatorio_docx(cabecalho: str, titulo_subcapa: str) -> BytesIO:
             p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_title.paragraph_format.space_before = Pt(2)
             p_title.paragraph_format.space_after = Pt(18)
-            p_title.runs[0].bold = True
-            p_title.runs[0].font.size = Pt(12)
 
             r = p_title.runs[0]
             r.bold = True
-            r.font.size = Pt(12)
-            r.font.color.rgb = RGBColor(2, 18, 74) # Azul Marinho da sua logo
+            r.font.size = Pt(16)
+            r.font.color.rgb = RGBColor(2, 18, 74) 
             r.font.name = "Roboto Condensed"
 
             img = BytesIO()
@@ -960,13 +958,11 @@ def gerar_relatorio_docx(cabecalho: str, titulo_subcapa: str) -> BytesIO:
             p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_title.paragraph_format.space_before = Pt(0)
             p_title.paragraph_format.space_after = Pt(18)
-            p_title.runs[0].bold = True
-            p_title.runs[0].font.size = Pt(12)
 
             r = p_title.runs[0]
             r.bold = True
-            r.font.size = Pt(12)
-            r.font.color.rgb = RGBColor(2, 18, 74) # Azul Marinho da sua logo
+            r.font.size = Pt(16)
+            r.font.color.rgb = RGBColor(2, 18, 74) 
             r.font.name = "Roboto Condensed"
 
             if re.search(r"(estimulada|cruzamento)", titulo.lower()):
