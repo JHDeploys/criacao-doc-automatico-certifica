@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-
+import numpy as np
 from metodos_auxiliares import ler_arquivo, baixar_excel
 from metodos_criar_graf_tab import (
     agrupar_tabelas,
@@ -107,13 +107,20 @@ st.subheader("📄 Prévia do Dataset")
 st.dataframe(df.head())
 st.divider()
 
-
 # ======================================================
 # 🔎 Identificação de colunas
 # ======================================================
 bairros = [bairro for bairro in df.columns if "bairro" in bairro.lower() and "você mora neste bairro" not in bairro.lower()]
-zonas = df.columns[df.columns.str.lower().str.contains("zona")]
-localidades = pd.Index(list(bairros) + list(zonas))
+zonas_existente = [col for col in df.columns if "zona" in col.lower() and "você mora neste zona" not in col.lower()]
+if len(zonas_existente) > 0:
+    zonas = zonas_existente
+else:
+    coluna_bairros = bairros[0] if len(bairros) > 0 else None
+    df["ZONA"] = np.where(df[coluna_bairros].astype(str).str.startswith("1 -"), "URBANA",
+        np.where(df[coluna_bairros].astype(str).str.startswith("2 -"), "RURAL", "DECONHECIDO"))
+    zonas =["ZONA"]
+    
+localidades = pd.Index(list(bairros) + list(zonas)).unique()
 df[localidades] = df[localidades].apply(
     lambda x: x.astype(str)
                .str.strip()
@@ -150,6 +157,14 @@ variaveis_excluir = df.columns[df.columns.str.lower().str.contains(
 colunas_base = df.columns[df.columns.isin(localidades) | df.columns.isin(sociais)]
 colunas_excluir = list(variaveis_excluir) + list(colunas_base)
 col_alvo = df.drop(columns=colunas_excluir)
+df[col_alvo.columns] = df[col_alvo.columns].apply(
+    lambda x: x.astype(str)
+               .str.strip()
+               .str.replace(r"(?i)^\s*\(outros?\)\s*", "", regex=True)
+               .str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
+               .str.replace(r"\s+", " ", regex=True)
+               .str.strip()
+)
 
 st.subheader("📌 Colunas Disponíveis para Cruzamento")
 st.dataframe(pd.DataFrame(col_alvo.columns, columns=["Colunas"]), height=300)
