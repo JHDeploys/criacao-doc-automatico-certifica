@@ -190,7 +190,7 @@ def limpar_nome_arquivo(texto, max_len=80):
 #Criar o Botão de Baixar tabela Excel:
 def baixar_excel(df, coluna, key):
     excel_file = BytesIO()
-    df.to_excel(excel_file, "Tabela_Excel", engine="openpyxl")
+    df.to_excel(excel_file, sheet_name="Tabela_Excel", engine="openpyxl")
     excel_file.seek(0)
     
     st.download_button(
