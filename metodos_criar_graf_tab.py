@@ -172,6 +172,8 @@ def tabela_cruzamento(df_in, column1, column2):
 # --- FUNÇÃO 2: agrupar_tabelas ---
 def agrupar_tabelas(df, variaveis, target):
     tabelas = []
+    limites = []
+    acumulador = 0
     
     # 1. Geração das Tabelas Individuais
     for var in variaveis:
@@ -179,6 +181,8 @@ def agrupar_tabelas(df, variaveis, target):
         tab = tabela_cruzamento(df.copy(), var, target).reset_index() 
         tab.columns = ["VARIÁVEIS"] + list(tab.columns[1:])
         tabelas.append(tab)
+        acumulador += len(tab)
+        limites.append(acumulador)
     
     # 2. Concatenação Inicial (agora com números)
     final_table = pd.concat(tabelas, ignore_index=True)
@@ -227,7 +231,7 @@ def agrupar_tabelas(df, variaveis, target):
     # Aplica o destaque na linha TOTAL
     styled_table = styled_table.apply(destacar_total, axis=1)
 
-    return final_table, styled_table
+    return final_table, styled_table, limites
 
 
 def criar_graf_barras_lado(df, x, y, hue, tipo_cruzamento):
