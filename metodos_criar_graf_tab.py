@@ -5,9 +5,21 @@ import io
 from metodos_auxiliares import  ordenar, plot_ordem_porcentagem, estilizar_tabela_sem_divisao
 from agentes_graf_tab import criar_paleta_cruzamento
 import ast
+import matplotlib.font_manager as fm
 
+# 1. Carrega a fonte diretamente do arquivo para o Matplotlib (bypassa o cache do sistema)
+caminho_fonte = "fonts/RobotoCondensed-Regular.ttf" # Ajuste para o caminho correto
+fm.fontManager.addfont(caminho_fonte)
+
+# 2. Define a fonte globalmente
+plt.rcParams['font.family'] = 'Roboto Condensed'
 #-----------------------------------------------------Espontâneas---------------------------------------------------------------------------
 def grafico_barras_espontanea(df, coluna, title):
+    # Define a fonte globalmente para o Matplotlib
+    plt.rcParams['font.family'] = 'Roboto Condensed'
+    # Caso queira garantir que não use fontes com serifa caso falhe:
+    plt.rcParams['font.sans-serif'] = ['Roboto Condensed', 'sans-serif']
+
     # Geração do gráfico
     df_plot = plot_ordem_porcentagem(df, coluna)
             
@@ -21,10 +33,10 @@ def grafico_barras_espontanea(df, coluna, title):
             break
 
     plt.xlabel("")
-    #plt.title(title, fontsize=18, fontweight='bold', y=1.04)
+    # plt.title(title, fontsize=18, fontweight='bold', y=1.04, fontname='Roboto Condensed')
     plt.ylabel("")
 
-    plt.yticks(fontsize=16)
+    plt.yticks(fontsize=16, fontname='Roboto Condensed')
     plt.xticks([])
     ax.set_frame_on(False)
     
@@ -36,7 +48,8 @@ def grafico_barras_espontanea(df, coluna, title):
             bar.get_y() + bar.get_height() / 2,
             f"{width:.0f}%",
             va="center", ha="left",
-            fontsize=20, fontweight="bold"
+            fontsize=20, fontweight="bold",
+            fontname="Roboto Condensed" # Força a fonte no texto
         )
     
     # Ajusta o layout do gráfico
