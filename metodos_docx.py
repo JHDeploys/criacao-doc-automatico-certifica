@@ -29,6 +29,27 @@ def set_cell_background(cell, color_hex: str) -> None:
     tcPr.append(shd)
 
 
+def set_row_bottom_border(table, row_idx, color_hex="02124A", size="12"):
+    """Adiciona borda inferior em todas as células de uma linha para separar grupos de variáveis."""
+    for cell in table.rows[row_idx].cells:
+        tc = cell._tc
+        tcPr = tc.get_or_add_tcPr()
+        tcBorders = tcPr.find(qn("w:tcBorders"))
+        if tcBorders is None:
+            tcBorders = OxmlElement("w:tcBorders")
+            tcPr.append(tcBorders)
+        # Remove borda inferior existente se houver
+        existing_bottom = tcBorders.find(qn("w:bottom"))
+        if existing_bottom is not None:
+            tcBorders.remove(existing_bottom)
+        bottom = OxmlElement("w:bottom")
+        bottom.set(qn("w:val"), "single")
+        bottom.set(qn("w:sz"), size)
+        bottom.set(qn("w:color"), color_hex)
+        bottom.set(qn("w:space"), "0")
+        tcBorders.append(bottom)
+
+
 def _clear_paragraphs(paragraphs):
     for p in paragraphs:
         p.clear()
@@ -176,11 +197,14 @@ def inserir_tabela_normal_doc(doc, df, largura_total=None):
                     r.font.size = Pt(10)
                     r.font.name = "Roboto Condensed"
 
+    # Borda inferior na última linha da tabela
+    set_row_bottom_border(table, rows, color_hex="02124A", size="12")
+
     finalize_autofit(table)
     return table
 
 
-def inserir_tabela_cruzamento_doc(doc, df, largura_total=None):
+def inserir_tabela_cruzamento_doc(doc, df, limites_variaveis=None, largura_total=None):
     """
     Tabela de cruzamento:
     - Header azul
@@ -254,6 +278,15 @@ def inserir_tabela_cruzamento_doc(doc, df, largura_total=None):
                     if is_total:
                         r.bold = True
                         r.font.color.rgb = RGBColor(255, 255, 255)
+
+    # Adiciona bordas entre grupos de variáveis
+    if limites_variaveis:
+        for limite in limites_variaveis[:-1]:
+            # limite = contagem acumulada de linhas no df;
+            # na tabela Word, header é row 0, então data row (limite-1) = table row (limite)
+            table_row = limite
+            if 1 <= table_row <= rows:
+                set_row_bottom_border(table, table_row, color_hex="02124A", size="12")
 
     finalize_autofit(table)
     return table
@@ -965,8 +998,9 @@ def gerar_relatorio_docx(cabecalho: str, titulo_subcapa: str) -> BytesIO:
             r.font.color.rgb = RGBColor(2, 18, 74) 
             r.font.name = "Roboto Condensed"
 
-            if re.search(r"(estimulada|cruzamento)", titulo.lower()):
-                tabela = inserir_tabela_cruzamento_doc(doc, df)
+            limites = info.get("limites_variaveis", [])
+            if limites or re.search(r"(estimulada|cruzamento)", titulo.lower()):
+                tabela = inserir_tabela_cruzamento_doc(doc, df, limites_variaveis=limites)
             else:
                 tabela = inserir_tabela_normal_doc(doc, df)
 
