@@ -37,12 +37,13 @@ init_session_state()
 # ======================================================
 # 🔹 Funções utilitárias de salvamento (PADRONIZADAS)
 # ======================================================
-def salvar_tabela(lista_destino, pagina, titulo, df_doc):
+def salvar_tabela(lista_destino, pagina, titulo, df_doc, limites_variaveis=None):
     lista_destino.append({
         "pagina": pagina,
         "titulo": titulo,
         "tabela": df_doc.copy(),
-        "interpretacao": ""
+        "interpretacao": "",
+        "limites_variaveis": limites_variaveis or []
     })
 
 
@@ -180,7 +181,7 @@ for coluna in col_alvo:
     #titulo = criar_title_graf(coluna)
     st.info(coluna)
 
-    df_doc, tabela = agrupar_tabelas(df, localidades, coluna)
+    df_doc, tabela, limites = agrupar_tabelas(df, localidades, coluna)
     st.dataframe(tabela)
 
     salvar_tabela(
@@ -188,7 +189,8 @@ for coluna in col_alvo:
         "cruzamento",
         #f"CRUZAMENTO: {coluna} X BAIRROS",
         coluna,
-        df_doc
+        df_doc,
+        limites_variaveis=limites
     )
 
     baixar_excel(tabela, coluna, f"localidades_{coluna}")
@@ -203,7 +205,7 @@ for coluna in col_alvo:
     #titulo = criar_title_graf(coluna)
     st.info(coluna)
 
-    df_doc, tabela = agrupar_tabelas(df, sociais, coluna)
+    df_doc, tabela, limites = agrupar_tabelas(df, sociais, coluna)
     st.dataframe(tabela)
 
     salvar_tabela(
@@ -211,7 +213,8 @@ for coluna in col_alvo:
         "cruzamento",
         #f"CRUZAMENTO: {coluna}",
         coluna,
-        df_doc
+        df_doc,
+        limites_variaveis=limites
     )
 
     baixar_excel(tabela, coluna, f"sociais_{coluna}")
@@ -224,7 +227,7 @@ st.subheader("🧑👩 Gráficos por Cruzamento Social")
 for coluna in col_alvo:
     #title = criar_title_graf(coluna)
     def ajustar_variavel_plot(df, variavel, coluna):
-        df_doc, _ = agrupar_tabelas(df, variavel, coluna)
+        df_doc, _, _ = agrupar_tabelas(df, variavel, coluna)
 
         df_plot = (
         df_doc
@@ -290,14 +293,15 @@ def bloco_cruzamento(idx):
             #titulo = f"{variaveis} X {col}"
             st.info(col)
 
-            df_doc, tabela = agrupar_tabelas(df, variaveis, col)
+            df_doc, tabela, limites = agrupar_tabelas(df, variaveis, col)
             st.dataframe(tabela)
 
             salvar_tabela(
                 st.session_state.tabelas_doc_intencoes,
                 "cruzamento",
                 col,
-                df_doc
+                df_doc,
+                limites_variaveis=limites
             )
 
 
