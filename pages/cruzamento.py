@@ -6,7 +6,7 @@ from metodos_criar_graf_tab import (
     agrupar_tabelas,
     criar_graf_barras_lado
 )
-from agentes_graf_tab import criar_title_graf
+from agentes_graf_tab import criar_title_graf_tab
 
 # ======================================================
 # 🔹 Inicialização global do session_state (OBRIGATÓRIA)
@@ -178,8 +178,8 @@ st.divider()
 st.subheader("📍 Cruzamento por Localidades")
 
 for coluna in col_alvo:
-    #titulo = criar_title_graf(coluna)
-    st.info(coluna)
+    titulo = criar_title_graf_tab(coluna)
+    st.info(titulo)
 
     df_doc, tabela, limites = agrupar_tabelas(df, localidades, coluna)
     st.dataframe(tabela)
@@ -188,7 +188,7 @@ for coluna in col_alvo:
         st.session_state.tabelas_doc_localidades,
         "cruzamento",
         #f"CRUZAMENTO: {coluna} X BAIRROS",
-        coluna,
+        titulo,
         df_doc,
         limites_variaveis=limites
     )
@@ -202,8 +202,8 @@ for coluna in col_alvo:
 st.subheader("🧑 Cruzamento por Questões Sociais")
 
 for coluna in col_alvo:
-    #titulo = criar_title_graf(coluna)
-    st.info(coluna)
+    titulo = criar_title_graf_tab(coluna)
+    st.info(titulo)
 
     df_doc, tabela, limites = agrupar_tabelas(df, sociais, coluna)
     st.dataframe(tabela)
@@ -212,7 +212,7 @@ for coluna in col_alvo:
         st.session_state.tabelas_doc_questoes,
         "cruzamento",
         #f"CRUZAMENTO: {coluna}",
-        coluna,
+        titulo,
         df_doc,
         limites_variaveis=limites
     )
@@ -225,7 +225,7 @@ for coluna in col_alvo:
 st.subheader("🧑👩 Gráficos por Cruzamento Social")
 
 for coluna in col_alvo:
-    #title = criar_title_graf(coluna)
+    titulo = criar_title_graf_tab(coluna)
     def ajustar_variavel_plot(df, variavel, coluna):
         df_doc, _, _ = agrupar_tabelas(df, variavel, coluna)
 
@@ -254,7 +254,7 @@ for coluna in col_alvo:
 
     for var, nome_var in zip(variaveis, nomes_variaveis):
         df_plot = ajustar_variavel_plot(df, var, coluna)
-        st.info(f"{coluna} por {nome_var}")
+        st.info(f"{titulo} por {nome_var}")
 
         graf = criar_graf_barras_lado(df_plot, "Resposta", "Percentual", "VARIÁVEIS", nome_var)
         st.pyplot(graf)
@@ -263,7 +263,7 @@ for coluna in col_alvo:
         st.session_state.graficos_doc_questoes,
         "cruzamento",
         #f"CRUZAMENTO: {coluna} X {nome_var}",
-        f"{coluna} X {nome_var}",
+        f"{titulo} X {nome_var}",
         graf
     )
 
@@ -303,8 +303,6 @@ def bloco_cruzamento(idx):
                 df_doc,
                 limites_variaveis=limites
             )
-
-
 
 for i in range(1, st.session_state.contador_cruzamentos + 1):
     bloco_cruzamento(i)
