@@ -1,12 +1,11 @@
 import streamlit as st
 
 from metodos_auxiliares import (
-    ler_arquivo, limpar_nome_coluna, encontrar_candidatos,
-    func_tab_interpretacao_abt
+    ler_arquivo, func_tab_interpretacao_abt
 )
 
 from agentes_graf_tab import (
-    interpretar_tabela, criar_tab_abt_geral, criar_title_graf
+    interpretar_tabela, criar_tab_abt_geral, criar_title_graf_tab
 )
 
 # ======================================================
@@ -94,11 +93,7 @@ st.divider()
 
 
 df_abt = df.columns[df.columns.str.lower().str.contains("abt")].tolist()
-if len(df_abt) > 0:
-    st.info(f"Colunas abertas identificadas: {df_abt}")
-else:
-    st.info("Nenhuma coluna aberta presente na base de dados")
-    st.stop()
+st.info(f"Colunas abertas identificadas: {df_abt}")
 
 # ======================================================
 # 🧩 Demais perguntas abertas
@@ -108,11 +103,11 @@ else:
 outras = [c for c in df_abt if c != "COLUNA INEXISTENTE"]
 
 for coluna in outras:
-    #titulo = criar_title_graf(coluna)
-    st.markdown(f"## 🔍 Analisando a coluna: **{coluna}**")
+    titulo = criar_title_graf_tab(coluna)
+    st.markdown(f"## 🔍 Analisando a coluna: **{titulo}**")
     tabelas, interpretacoes = func_tab_interpretacao_abt(
         df,
-        coluna,
+        titulo,
         criar_tab_abt_geral,
         interpretar_tabela
     )
@@ -120,7 +115,7 @@ for coluna in outras:
     salvar_tabela(
         st.session_state.tabelas_doc_abertas,
         "abertas",
-        f"{coluna}",
+        f"{titulo}",
         tabelas.data,
         interpretacoes
     )
