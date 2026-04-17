@@ -12,7 +12,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 #Encontrar coluna de Rejeição:
 def encontrar_rejeicao(colunas):
     prompt = f"""
-    Você é um especialista em pesquisas eleitorais com 20 anos de experiência.
+    Você é um especialista em pesquisas eleitorais om 20 anos de experiência.
     Sua tarefa é identificar, entre as colunas fornecidas, qual delas representa
     o motivo de **não votar**, **não aprovar** ou **rejeitar** candidatos.
 
@@ -422,32 +422,42 @@ def interpretar_tabela(tabela):
     )
     return response.choices[0].message.content
 
-def criar_title_graf(col):
+def criar_title_graf_tab(col):
     prompt = f"""
-    Você é um analista de dados especializado em visualização de informações.
-    Sua tarefa é gerar um título claro, conciso e informativo para um gráfico com base no nome da seguinte coluna:
-    {col}
+    Você é um analista de dados especializado em visualização de informações e pesquisas eleitorais.
+    Sua tarefa é limpar e formatar o título extraído da seguinte coluna:
+    "{col}"
 
-    Regras para criação do título:
-    Retorne apenas o título final, SEM aspas, SEM comentários adicionais e TODO EM MAIÚSCULO.
+    Regras OBRIGATÓRIAS para a formatação do título:
+    1. Retorne APENAS o título final, SEM aspas, SEM comentários e TODO EM MAIÚSCULAS.
+    2. Remova TODOS os prefixos técnicos, como "(OBJ)", "(LIS)", "(ABT)", e quaisquer variações.
+    3. Remova a numeração da pergunta que aparece no início (ex: "6.", "10.\\t", "7-", "1. ", etc).
+    4. Remova instruções voltadas para o entrevistador, que geralmente ficam ao final ou em parênteses (ex: "(leia todas as opções)", "(NOMES EM RODÍZIO)", "(O ELEITOR PODE ESCOLHER ATÉ DOIS NOMES)", "(NOMES EM APTOS)").
+    5. Se a pergunta tiver a marcação indicando o tipo (ex: "(ESPONTÂNEA)", "(ESTIMULADA)", "(ESTIMULADA - REJEIÇÃO)"), MANTENHA essa marcação, colocando-a preferencialmente no início do título.
+    6. Corrija eventuais erros de digitação ou de codificação de caracteres (ex: "VOC" para "VOCÊ", "OPINIO" para "OPINIÃO", "ELEIO" para "ELEIÇÃO", "SADE" para "SAÚDE", "GNERO" para "GÊNERO").
+    7. Elimine repetições desnecessárias da mesma palavra ou frase (ex: "POR QU? POR QU? POR QU?" deve virar apenas "POR QUÊ?").
+    8. A frase deve ser direta e profissional, contendo no máximo 90 caracteres. Se a pergunta for muito longa, resuma inteligentemente mantendo o sentido principal.
+
+    Exemplos de entrada e saída esperada:
+    Entrada: "(LIS)(ESTIMULADA) NA SUA OPINIO, QUAL  HOJE O MAIOR PROBLEMA DE CABEDELO? (leia todas as opes)"
+    Saída: (ESTIMULADA) NA SUA OPINIÃO, QUAL É HOJE O MAIOR PROBLEMA DE CABEDELO?
+
+    Entrada: "(OBJ)12.\\t(ESTIMULADA  SENADOR) SE A ELEIO PARA SENADOR FOSSE HOJE, EM QUAL DESTES CANDIDATOS VOC VOTARIA? (O ELEITOR PODE ESCOLHER AT DOIS NOMES) - PRIMEIRO VOTO"
+    Saída: (ESTIMULADA - SENADOR) EM QUEM VOTARIA PARA SENADOR SE FOSSE HOJE? - 1º VOTO
     
-    A frase deve ser direta e profissional, contendo no máximo 90 caracteres, incluindo espaços.
-
-    Voce deve ignorar todos os prefixos da coluna, como "(LIS)", "(ESPONTÂNEA", "(OBJ)", "(ESTIMULADA", e quaisquer outros, 
-    e criar um título a partir do nome da coluna, sem incluir esses termos.
-
-    Exemplo de saída esperada:
-    Se a coluna for "(ESPONTÂNEA) SE A ELEIÇÃO PARA PREFEITO(A) FOSSE HOJE, EM QUEM VOCÊ VOTARIA?", o título deve ser:
-
-    SE A ELEIÇÃO PARA PREFEITO(A) FOSSE HOJE, EM QUEM VOCÊ VOTARIA?
+    Entrada: "(ABT) POR QU? POR QU? POR QU?"
+    Saída: POR QUÊ?
     
+    Entrada: "(OBJ)7.\\t(ESTIMULADA  GOVERNADOR) SE A ELEIO PARA GOVERNADOR FOSSE HOJE, EM QUEM DESTE CANDIDATOS VOC VOTARIA?"
+    Saída: (ESTIMULADA - GOVERNADOR) SE A ELEIÇÃO FOSSE HOJE, EM QUEM VOCÊ VOTARIA?
     """
 
     response = client.chat.completions.create(
         model="gpt-5.1",
         messages=[
             {"role": "user", "content": prompt}
-        ]
+        ],
+        temperature=0
     )
 
     return response.choices[0].message.content.strip()
@@ -689,4 +699,3 @@ Nome do arquivo:
     )
 
     return response.choices[0].message.content.strip()
-
