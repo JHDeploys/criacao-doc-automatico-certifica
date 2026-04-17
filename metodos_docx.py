@@ -962,7 +962,7 @@ def gerar_relatorio_docx(cabecalho: str, titulo_subcapa: str) -> BytesIO:
             r = p_title.runs[0]
             r.bold = True
             r.font.size = Pt(16)
-            r.font.color.rgb = RGBColor(2, 18, 74) 
+            r.font.color.rgb = RGBColor(0, 0, 0) 
             r.font.name = "Roboto Condensed"
 
             img = BytesIO()
@@ -995,7 +995,7 @@ def gerar_relatorio_docx(cabecalho: str, titulo_subcapa: str) -> BytesIO:
             r = p_title.runs[0]
             r.bold = True
             r.font.size = Pt(16)
-            r.font.color.rgb = RGBColor(2, 18, 74) 
+            r.font.color.rgb = RGBColor(0, 0, 0) 
             r.font.name = "Roboto Condensed"
 
             limites = info.get("limites_variaveis", [])
