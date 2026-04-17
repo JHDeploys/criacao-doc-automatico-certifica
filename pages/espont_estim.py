@@ -7,7 +7,7 @@ from metodos_criar_graf_tab import (
     grafico_barras_espontanea,
     tabela_espontanea
 )
-from agentes_graf_tab import criar_title_graf
+from agentes_graf_tab import criar_title_graf_tab
 
 # ======================================================
 # 🔹 Configuração da página
@@ -135,10 +135,10 @@ df[espontaneas] = (df[espontaneas]
                     )
 
 for col in espontaneas:
-    #title = criar_title_graf(col)
+    title = criar_title_graf_tab(col)
     #is_prefeito = bool(re.search("prefeito|prefeita", col.lower()))
 
-    st.write(col)
+    st.write(title)
 
     if df[col].nunique() <= 5:
         grafico = grafico_barras_espontanea(df, col, col)
@@ -154,7 +154,7 @@ for col in espontaneas:
             st.session_state.graficos_doc_intencoes,
             PAGINA_ESPONTANEA,
             #f"(ESPONTÂNEA) {col}",
-            f"{col}",
+            f"{title}",
             grafico
         )
 
@@ -172,7 +172,7 @@ for col in espontaneas:
             st.session_state.tabelas_doc_intencoes,
             PAGINA_ESPONTANEA,
             #f"(ESPONTÂNEA) {col}",
-            f"{col}",
+            f"{title}",
             df_doc
         )
 
@@ -186,31 +186,43 @@ faltantes_espont = st.multiselect(
 )
 
 for col in faltantes_espont:
-    #title = criar_title_graf(col)
-    is_prefeito = bool(re.search("prefeito|prefeita", col.lower()))
+    title = criar_title_graf_tab(col)
+    #is_prefeito = bool(re.search("prefeito|prefeita", col.lower()))
 
-    st.write(col)
+    st.write(title)
 
-    if is_prefeito:
+    if df[col].nunique() <= 5:
         grafico = grafico_barras_espontanea(df, col, col)
         st.pyplot(grafico)
+
+        baixar_grafico(
+            grafico,
+            limpar_nome_arquivo(col),
+            f"Grafico_Espontanea_{col}"
+        )
 
         salvar_grafico(
             st.session_state.graficos_doc_intencoes,
             PAGINA_ESPONTANEA,
             #f"(ESPONTÂNEA) {col}",
-            col,
+            f"{title}",
             grafico
         )
     else:
         df_doc, tabela = tabela_espontanea(df, col)
         st.dataframe(tabela, use_container_width=True)
 
+        baixar_excel(
+            df_doc,
+            col,
+            f"Tabela_Espontanea_{limpar_nome_arquivo(col)}.xlsx"
+        )
+
         salvar_tabela(
             st.session_state.tabelas_doc_intencoes,
             PAGINA_ESPONTANEA,
             #f"(ESPONTÂNEA) {col}",
-            col,
+            f"{title}",
             df_doc
         )
 
@@ -239,9 +251,9 @@ df[estimuladas] = (df[estimuladas]
                     )
 
 for col in estimuladas:
-    #title = criar_title_graf(col)
+    title = criar_title_graf_tab(col)
 
-    st.write(col)
+    st.write(title)
     grafico = grafico_barras_espontanea(df, col, col)
     st.pyplot(grafico)
 
@@ -255,7 +267,7 @@ for col in estimuladas:
         st.session_state.graficos_doc_intencoes,
         PAGINA_ESTIMULADA,
         #f"(ESTIMULADA) {col}",
-        col,
+        f"{title}",
         grafico
     )
 
@@ -269,9 +281,9 @@ faltantes_estimulada = st.multiselect(
 )
 
 for col in faltantes_estimulada:
-    #title = criar_title_graf(col)
+    title = criar_title_graf_tab(col)
 
-    st.write(col)
+    st.write(title)
     grafico = grafico_barras_espontanea(df, col, col)
     st.pyplot(grafico)
 
@@ -279,6 +291,6 @@ for col in faltantes_estimulada:
         st.session_state.graficos_doc_intencoes,
         PAGINA_ESTIMULADA,
         #f"(ESTIMULADA) {col}",
-        col,
+        f"{title}",
         grafico
     )
