@@ -43,12 +43,20 @@ def ordenar(df, column):
     serie_norm = serie.str.upper()
     count_col = serie_norm.value_counts()
 
-    # Variável única, como você pediu
-    branco = {
-        "BRANCO/NULO", "NÃO SABE", "NÃO SABE/NÃO RESPONDEU",
-        "NENHUM", "NÃO RESPONDEU", "N RESPONDEU",
-        "NADA/ NENHUM", "","NÃO SABE/NÃO RESPONDEU (NÃO LER)", "BRANCO/NULO (NÃO LER)"
-    }
+    # ── Detecção de "branco/NS" por REGEX (robusto a qualquer variação) ──────
+    import re
+    _BRANCO_RE = re.compile(
+        r"n[aã]o\s+sabe|n[aã]o\s+respondeu|branco|nulo|nenhum|"
+        r"ningu[eé]m|ns\s*/\s*nr|n\s+respondeu|^\s*$",
+        re.IGNORECASE
+    )
+
+    def _eh_branco(valor):
+        return bool(_BRANCO_RE.search(str(valor).strip()))
+
+    def _tem_branco_literal(valor):
+        """Verifica se contém a palavra BRANCO (para ordenação branco > NS)."""
+        return bool(re.search(r"branco", str(valor), re.IGNORECASE))
 
     # ⚠️ LISTA ORDENADA (ordem semântica)
     escala_avaliacao = [
@@ -56,47 +64,44 @@ def ordenar(df, column):
         "BOA", "BOM",
         "REGULAR",
         "RUIM",
-        "PÉSSIMA",
-        "APROVA",
-        "DESAPROVA",
+        "PÉSSIMA", "PÉSSIMO",
+        "APROVA", "APROVADO",
+        "DESAPROVA", "DESAPROVADO",
         "POSITIVA", "POSITIVO",
         "NEGATIVA", "NEGATIVO",
-        "DE 16 A 24 ANOS"
+        "DE 16 A 24 ANOS",
+        "SEM RENDIMENTO ATÉ R$ 1.621,00 (ATÉ 1 SALÁRIO MÍNIMO)"
     ]
 
-    # Detecta escala somente se houver PELO MENOS 3 itens da escala
+    # Detecta escala somente se houver PELO MENOS 1 item da escala
     encontrados = [v for v in escala_avaliacao if v in count_col.index]
     tem_escala = len(encontrados) >= 1
 
     if tem_escala:
-        # Ordem fixa e controlada
+        # Ordem fixa e controlada pela escala
         ordem_principal = encontrados
 
         outros = count_col[
-            ~count_col.index.isin(ordem_principal) &
-            ~count_col.index.isin(branco)
+            ~count_col.index.map(_eh_branco) &
+            ~count_col.index.isin(ordem_principal)
         ].sort_index()
 
-        brancos = count_col[count_col.index.isin(branco)]
-        
-        # Filtra dinamicamente: Primeiro itens com "BRANCO", depois o resto ("NÃO SABE", etc)
-        brancos_primeiro = [b for b in brancos.index if "BRANCO" in b]
-        resto_indecisos = [b for b in brancos.index if "BRANCO" not in b]
+        brancos_idx = [b for b in count_col.index if _eh_branco(b)]
+        brancos_primeiro = [b for b in brancos_idx if _tem_branco_literal(b)]
+        resto_indecisos  = [b for b in brancos_idx if not _tem_branco_literal(b)]
 
-        ordem = ordem_principal + brancos_primeiro + resto_indecisos + list(outros.index)
+        ordem = ordem_principal + list(outros.index) + brancos_primeiro + resto_indecisos
 
     else:
-        # 🔥 AQUI É RANKING, SEM EXCEÇÃO
+        # 🔥 RANKING por frequência — brancos sempre no final
         candidatos = (
-            count_col[~count_col.index.isin(branco)]
+            count_col[~count_col.index.map(_eh_branco)]
             .sort_values(ascending=False)
         )
 
-        brancos = count_col[count_col.index.isin(branco)]
-
-        # Filtra dinamicamente: Primeiro itens com "BRANCO", depois o resto ("NÃO SABE", etc)
-        brancos_primeiro = [b for b in brancos.index if "BRANCO" in b]
-        resto_indecisos = [b for b in brancos.index if "BRANCO" not in b]
+        brancos_idx = [b for b in count_col.index if _eh_branco(b)]
+        brancos_primeiro = [b for b in brancos_idx if _tem_branco_literal(b)]
+        resto_indecisos  = [b for b in brancos_idx if not _tem_branco_literal(b)]
 
         ordem = list(candidatos.index) + brancos_primeiro + resto_indecisos
 
