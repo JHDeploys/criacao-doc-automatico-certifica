@@ -465,114 +465,90 @@ def criar_title_graf_tab(col):
 
 def criar_tab_abt_geral(df, coluna):
     falas = df[coluna].dropna().astype(str).tolist()
+    n_respondentes = len(falas)
 
-    prompt = f"""
-    Você atuará EXCLUSIVAMENTE como ORGANIZADOR DE TEMAS.
+    # ── ETAPA 1: IA classifica cada fala em uma categoria ──────────────────
+    prompt_classificar = f"""
+    Você é um classificador de respostas abertas de pesquisa eleitoral.
 
-    Seu papel é AGRUPAR as falas por similaridade de conteúdo,
-    criando categorias consistentes, consolidadas e não redundantes.
+    Sua única tarefa é:
+    1. Analisar a lista de falas abaixo.
+    2. Criar categorias temáticas consolidadas (máx. 20 categorias, curtas e em MAIÚSCULAS).
+    3. Classificar CADA fala em UMA categoria (ou mais, se for múltipla resposta).
 
-    ============================================================
-    OBJETIVO PRINCIPAL
-    Identificar PADRÕES REAIS nas falas e AGRUPAR respostas
-    que tratem do MESMO ASSUNTO, mesmo que usem palavras diferentes.
-    ============================================================
+    REGRAS OBRIGATÓRIAS:
+    - Rótulos CURTOS, EM MAIÚSCULAS, sem parênteses, "/" apenas se necessário.
+    - Consolide rótulos semelhantes em um único ("FALTA DE MÉDICO" e "SEM MÉDICO" → mesmo rótulo).
+    - NÃO invente categorias que não existam nas falas.
+    - Se a fala não tiver opinião: "NÃO SABE / NÃO OPINOU".
+    - Para cada fala, retorne UMA OU MAIS categorias (array), pois pode ser múltipla resposta.
 
-    ============================================================
-    REGRA DE CONSOLIDAÇÃO (OBRIGATÓRIA)
-
-    Se dois rótulos representarem o MESMO TEMA,
-    eles DEVEM ser UNIFICADOS.
-
-    Exemplos de consolidação correta:
-    - "FALTA DE MÉDICO" + "FALTA DE MÉDICOS" → "FALTA DE MÉDICO"
-    - "SAÚDE RUIM" + "PROBLEMAS NA SAÚDE" → um único rótulo
-    - "ESTRADA ESBURACADA" + "BURACO NAS RUAS" → um único rótulo
-    - "SEGURANÇA" + "FALTA DE SEGURANÇA" → consolidar se forem semanticamente iguais
-
-    É PROIBIDO criar categorias duplicadas ou quase idênticas.
-
-    Antes de gerar o JSON, você DEVE verificar:
-    - Existe algum rótulo muito parecido com outro?
-    - Algum pode ser fundido?
-    Se sim, consolide.
-
-    ============================================================
-    REGRA DE ESPECIFICIDADE
-
-    - NÃO generalize temas específicos em macrotemas.
-      Errado: "FALTA DE MÉDICO" → "SAÚDE"
-      Certo:  "FALTA DE MÉDICO"
-
-    - Só use macrotema se as falas forem realmente amplas.
-
-    ============================================================
-    REGRA SOBRE NÃO-OPINIÃO
-
-    Existe apenas um rótulo permitido:
-    "NÃO SABE / NÃO OPINOU"
-
-    Use SOMENTE quando a fala for exclusivamente não-opinião
-    e não contiver nenhum conteúdo temático.
-
-    Se houver conteúdo junto, classifique pelo conteúdo.
-
-    ============================================================
-    REGRAS GERAIS
-
-    1. NÃO analisar, explicar ou opinar.
-    2. NÃO inventar temas.
-    3. NÃO mencionar nomes próprios/candidatos.
-    4. "OUTROS" apenas se realmente necessário (<5%).
-    5. No máximo 20 rótulos totais.
-    6. Rótulos devem ser:
-       - CURTOS
-       - EM LETRAS MAIÚSCULAS
-       - Sem parênteses
-       - "/" apenas se necessário
-    7. Ordenar do maior para o menor %.
-
-    ============================================================
-    VERIFICAÇÃO FINAL (OBRIGATÓRIA)
-
-    Antes de gerar o JSON:
-    - Verifique se há rótulos redundantes
-    - Verifique se há categorias excessivamente fragmentadas
-    - Garanta que temas semanticamente iguais foram consolidados
-
-    Se houver fragmentação indevida, REORGANIZE.
-
-    ============================================================
-    FORMATO (JSON APENAS)
-
+    FORMATO DE SAÍDA (JSON apenas, sem texto adicional):
     {{
-      "resultados": [
-        {{"RANK":"1º","TEMAS/ASSUNTOS":"EXEMPLO","%":0.00}}
-      ]
+      "categorias": {{
+        "fala exata aqui": ["CATEGORIA A"],
+        "outra fala aqui": ["CATEGORIA A", "CATEGORIA B"]
+      }}
     }}
 
-    ============================================================
-
-    FALAS:
+    FALAS (total: {n_respondentes}):
     {falas}
     """
 
     response = client.chat.completions.create(
         model="gpt-5.1",
         response_format={"type": "json_object"},
-        messages=[{
-            "role": "user",
-            "content": prompt
-        }]
+        messages=[{"role": "user", "content": prompt_classificar}]
     )
 
     data = json.loads(response.choices[0].message.content)
+    mapa = data.get("categorias", {})
 
-    df = pd.DataFrame(data["resultados"])
-    df["%"] = df["%"].astype(float).round(2)
-    df["%"] = df["%"].astype(str) + "%"
-    styled = estilizar_tabela_sem_divisao(df)
+    # ── ETAPA 2: Python conta as categorias por respondente ────────────────
+    from collections import Counter
+
+    contagem = Counter()
+
+    for fala in falas:
+        fala_str = str(fala).strip()
+        categorias_da_fala = None
+
+        # Busca exata primeiro
+        if fala_str in mapa:
+            categorias_da_fala = mapa[fala_str]
+        else:
+            # Busca aproximada (primeiros 80 chars)
+            for chave in mapa:
+                if fala_str[:80] in chave or chave[:80] in fala_str:
+                    categorias_da_fala = mapa[chave]
+                    break
+
+        if categorias_da_fala:
+            for cat in categorias_da_fala:
+                contagem[cat] += 1
+
+    if not contagem:
+        # Fallback: se o mapeamento falhou, usa todas as categorias retornadas
+        for cats in mapa.values():
+            for cat in cats:
+                contagem[cat] += 1
+
+    # ── ETAPA 3: Calcula % sobre total de MENÇÕES (soma = 100%) ───────────
+    total_mencoes = sum(contagem.values())
+
+    resultados = []
+    for rank, (tema, count) in enumerate(contagem.most_common(), start=1):
+        pct = round((count / total_mencoes) * 100, 2) if total_mencoes > 0 else 0.0
+        resultados.append({
+            "RANK": f"{rank}º",
+            "TEMAS/ASSUNTOS": tema,
+            "%": f"{pct}%"
+        })
+
+    df_result = pd.DataFrame(resultados)
+    styled = estilizar_tabela_sem_divisao(df_result)
     return styled
+
 
 def gerar_cabecalho_arquivo(nome_arquivo):
     prompt = f"""
