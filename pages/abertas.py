@@ -107,7 +107,7 @@ for coluna in outras:
     st.markdown(f"## 🔍 Analisando a coluna: **{titulo}**")
     tabelas, interpretacoes = func_tab_interpretacao_abt(
         df,
-        titulo,
+        coluna,
         criar_tab_abt_geral,
         interpretar_tabela
     )
