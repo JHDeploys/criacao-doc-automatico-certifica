@@ -135,39 +135,67 @@ def grafico_barras_estimulada(df, colum, title):
 # --- FUNÇÃO 1: tabela_cruzamento ---
 def tabela_cruzamento(df_in, column1, column2):
     # Usamos .copy() para evitar SettingWithCopyWarning
-    df = df_in.copy() 
-    
-    # 1. Limpeza de Dados
-    for col in [column1, column2]:
-        if col is not None and col in df.columns:
-            if df[col].dtype == 'object':
-                df[col] = df[col].astype(str).str.strip()
-                # Remoção de prefixos como "1 - ", etc.
-                df[col] = df[col].str.replace(r"^\d+\s-\s", "", regex=True)
-            
+    df = df_in.copy()
+
+    # ── Column1 (variável de linha: renda, escolaridade, bairro...) ─────────
+    # Detecta prefixo numérico ("1 - ", "2 – ", etc.) e usa para ordenar as linhas
+    row_order = None
+    if column1 is not None and column1 in df.columns:
+        raw_col1 = df[column1].astype(str).str.strip()
+        has_prefix = raw_col1.str.match(r"^\d+\s*[-–]\s*").any()
+
+        if has_prefix:
+            # Extrai o número do prefixo para determinar a ordem
+            prefix_nums = raw_col1.str.extract(r"^(\d+)\s*[-–]\s*", expand=False)
+            prefix_nums = pd.to_numeric(prefix_nums, errors="coerce").fillna(999).astype(int)
+
+            # Remove o prefixo para exibição
+            stripped = raw_col1.str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
+            df[column1] = stripped
+
+            # Constrói a ordem das linhas pelo número do prefixo
+            temp = (
+                pd.DataFrame({"prefix": prefix_nums, "label": stripped})
+                .drop_duplicates()
+                .sort_values("prefix")
+            )
+            row_order = temp["label"].tolist()
+        else:
+            df[column1] = raw_col1.str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
+
+    # ── Column2 (questão alvo: resposta da pergunta cruzada) ────────────────
+    if column2 is not None and column2 in df.columns:
+        if df[column2].dtype == "object":
+            df[column2] = df[column2].astype(str).str.strip()
+            df[column2] = df[column2].str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
+
     ordem, _ = ordenar(df, column2)
 
-    # 2. Criação e Normalização da Tabela
+    # ── Criação e Normalização da Tabela ────────────────────────────────────
     grupo = df.groupby([column1, column2]).size().reset_index(name="count")
     table = grupo.pivot(index=column1, columns=column2, values="count").fillna(0)
-    
-    # Normalização por linha (percentual dentro de cada grupo)
+
+    # Normalização por linha (percentual dentro de cada grupo de linha)
     table = table.div(table.sum(axis=1), axis=0) * 100
 
-    # Adiciona a coluna TOTAL, que é sempre 100.0 neste tipo de normalização
+    # Adiciona a coluna TOTAL (sempre 100%)
     table["TOTAL"] = 100
-    
-    # 3. Ordenação e Formatação
+
+    # ── Ordenação das colunas (respostas da questão) ─────────────────────────
     colunas_ordenadas = [col for col in ordem if col in table.columns]
     table = table[colunas_ordenadas + ["TOTAL"]]
 
-    # Arredonda (em número) antes de formatar
-    table = table.round(1) 
+    # ── Ordenação das linhas pelo prefixo (renda, escolaridade, etc.) ────────
+    if row_order is not None:
+        existing_rows = [r for r in row_order if r in table.index]
+        remaining_rows = [r for r in table.index if r not in existing_rows]
+        table = table.loc[existing_rows + remaining_rows]
 
-    # Remove título do índice e das colunas para limpeza visual
+    table = table.round(1)
     table = table.rename_axis(None, axis=0).rename_axis(None, axis=1)
-    
-    return table # Retorna a tabela em formato numérico (float)
+
+    return table  # Retorna em formato numérico (float)
+
 
 # --- FUNÇÃO 2: agrupar_tabelas ---
 def agrupar_tabelas(df, variaveis, target):
