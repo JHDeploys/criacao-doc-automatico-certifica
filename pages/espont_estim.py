@@ -134,7 +134,7 @@ df[espontaneas] = (df[espontaneas]
                         )
                     )
 
-for col in espontaneas:
+for i, col in enumerate(espontaneas):
     title = criar_title_graf_tab(col)
     #is_prefeito = bool(re.search("prefeito|prefeita", col.lower()))
 
@@ -147,7 +147,7 @@ for col in espontaneas:
         baixar_grafico(
             grafico,
             limpar_nome_arquivo(col),
-            f"Grafico_Espontanea_{col}"
+            f"Grafico_Espontanea_{i}_{limpar_nome_arquivo(col)}"
         )
 
         salvar_grafico(
@@ -165,7 +165,7 @@ for col in espontaneas:
         baixar_excel(
             df_doc,
             col,
-            f"Tabela_Espontanea_{limpar_nome_arquivo(col)}.xlsx"
+            f"Tabela_Espontanea_{i}_{limpar_nome_arquivo(col)}.xlsx"
         )
 
         salvar_tabela(
@@ -185,7 +185,7 @@ faltantes_espont = st.multiselect(
     key="faltantes_espont"
 )
 
-for col in faltantes_espont:
+for i, col in enumerate(faltantes_espont):
     title = criar_title_graf_tab(col)
     #is_prefeito = bool(re.search("prefeito|prefeita", col.lower()))
 
@@ -198,7 +198,7 @@ for col in faltantes_espont:
         baixar_grafico(
             grafico,
             limpar_nome_arquivo(col),
-            f"Grafico_Espontanea_{col}"
+            f"Grafico_Espontanea_manual_{i}_{limpar_nome_arquivo(col)}"
         )
 
         salvar_grafico(
@@ -215,7 +215,7 @@ for col in faltantes_espont:
         baixar_excel(
             df_doc,
             col,
-            f"Tabela_Espontanea_{limpar_nome_arquivo(col)}.xlsx"
+            f"Tabela_Espontanea_manual_{i}_{limpar_nome_arquivo(col)}.xlsx"
         )
 
         salvar_tabela(
@@ -250,7 +250,7 @@ df[estimuladas] = (df[estimuladas]
                         )
                     )
 
-for col in estimuladas:
+for i, col in enumerate(estimuladas):
     title = criar_title_graf_tab(col)
 
     st.write(title)
@@ -260,7 +260,7 @@ for col in estimuladas:
     baixar_grafico(
         grafico,
         limpar_nome_arquivo(col),
-        f"Grafico_Estimulada_{col}"
+        f"Grafico_Estimulada_{i}_{limpar_nome_arquivo(col)}"
     )
 
     salvar_grafico(
@@ -280,12 +280,18 @@ faltantes_estimulada = st.multiselect(
     key="faltantes_estimulada"
 )
 
-for col in faltantes_estimulada:
+for i, col in enumerate(faltantes_estimulada):
     title = criar_title_graf_tab(col)
 
     st.write(title)
     grafico = grafico_barras_espontanea(df, col, col)
     st.pyplot(grafico)
+
+    baixar_grafico(
+        grafico,
+        limpar_nome_arquivo(col),
+        f"Grafico_Estimulada_manual_{i}_{limpar_nome_arquivo(col)}"
+    )
 
     salvar_grafico(
         st.session_state.graficos_doc_intencoes,
