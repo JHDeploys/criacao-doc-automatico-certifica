@@ -133,67 +133,61 @@ def grafico_barras_estimulada(df, colum, title):
 
 #-----------------------------------------Função para gerar a tabela de cruzamento entre variáveis---------------------------------
 # --- FUNÇÃO 1: tabela_cruzamento ---
+import re as _re
+_PREFIX_RE = _re.compile(r"^\s*(\d+)\s*[-–]\s*(.+?)\s*$", _re.DOTALL)
+
+def _parse_prefix(valor):
+    """Retorna (num_prefixo, label_limpo). Se não tiver prefixo, retorna (999, valor)."""
+    m = _PREFIX_RE.match(str(valor))
+    if m:
+        return int(m.group(1)), m.group(2).strip()
+    return 999, str(valor).strip()
+
 def tabela_cruzamento(df_in, column1, column2):
-    # Usamos .copy() para evitar SettingWithCopyWarning
     df = df_in.copy()
 
-    # ── Column1 (variável de linha: renda, escolaridade, bairro...) ─────────
-    # Detecta prefixo numérico ("1 - ", "2 – ", etc.) e usa para ordenar as linhas
-    row_order = None
-    if column1 is not None and column1 in df.columns:
-        raw_col1 = df[column1].astype(str).str.strip()
-        has_prefix = raw_col1.str.match(r"^\d+\s*[-–]\s*").any()
-
-        if has_prefix:
-            # Extrai o número do prefixo para determinar a ordem
-            prefix_nums = raw_col1.str.extract(r"^(\d+)\s*[-–]\s*", expand=False)
-            prefix_nums = pd.to_numeric(prefix_nums, errors="coerce").fillna(999).astype(int)
-
-            # Remove o prefixo para exibição
-            stripped = raw_col1.str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
-            df[column1] = stripped
-
-            # Constrói a ordem das linhas pelo número do prefixo
-            temp = (
-                pd.DataFrame({"prefix": prefix_nums, "label": stripped})
-                .drop_duplicates()
-                .sort_values("prefix")
-            )
-            row_order = temp["label"].tolist()
-        else:
-            df[column1] = raw_col1.str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
-
-    # ── Column2 (questão alvo: resposta da pergunta cruzada) ────────────────
+    # ── Column2 (questão alvo): strip prefixo e normaliza ───────────────────
     if column2 is not None and column2 in df.columns:
         if df[column2].dtype == "object":
-            df[column2] = df[column2].astype(str).str.strip()
-            df[column2] = df[column2].str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
+            df[column2] = (
+                df[column2].astype(str).str.strip()
+                .str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
+                .str.replace(r"\s+", " ", regex=True).str.strip()
+            )
 
     ordem, _ = ordenar(df, column2)
 
-    # ── Criação e Normalização da Tabela ────────────────────────────────────
+    # ── Column1 (variável de linha): normaliza mas MANTÉM prefixo para o pivot
+    if column1 is not None and column1 in df.columns:
+        df[column1] = (
+            df[column1].astype(str).str.strip()
+            .str.replace(r"\s+", " ", regex=True).str.strip()
+        )
+
+    # ── Criação e Normalização da Tabela ─────────────────────────────────────
     grupo = df.groupby([column1, column2]).size().reset_index(name="count")
     table = grupo.pivot(index=column1, columns=column2, values="count").fillna(0)
-
-    # Normalização por linha (percentual dentro de cada grupo de linha)
     table = table.div(table.sum(axis=1), axis=0) * 100
-
-    # Adiciona a coluna TOTAL (sempre 100%)
     table["TOTAL"] = 100
 
-    # ── Ordenação das colunas (respostas da questão) ─────────────────────────
+    # ── Ordenação das colunas (respostas da questão alvo) ────────────────────
     colunas_ordenadas = [col for col in ordem if col in table.columns]
     table = table[colunas_ordenadas + ["TOTAL"]]
 
-    # ── Ordenação das linhas pelo prefixo (renda, escolaridade, etc.) ────────
-    if row_order is not None:
-        existing_rows = [r for r in row_order if r in table.index]
-        remaining_rows = [r for r in table.index if r not in existing_rows]
-        table = table.loc[existing_rows + remaining_rows]
+    # ── Ordenação das LINHAS pelo prefixo numérico ───────────────────────────
+    # Extrai (num, label_limpo) de cada valor do índice e ordena por num
+    parsed = {idx: _parse_prefix(idx) for idx in table.index}
+    tem_prefixo = any(num != 999 for num, _ in parsed.values())
+
+    if tem_prefixo:
+        # Ordena o índice pelo número do prefixo
+        sorted_index = sorted(table.index, key=lambda x: parsed[x][0])
+        table = table.loc[sorted_index]
+        # Renomeia o índice para o rótulo limpo (sem prefixo)
+        table.index = [parsed[idx][1] for idx in table.index]
 
     table = table.round(1)
     table = table.rename_axis(None, axis=0).rename_axis(None, axis=1)
-
     return table  # Retorna em formato numérico (float)
 
 
