@@ -29,7 +29,7 @@ def set_cell_background(cell, color_hex: str) -> None:
     tcPr.append(shd)
 
 
-def set_row_bottom_border(table, row_idx, color_hex="02124A", size="12"):
+def set_row_bottom_border(table, row_idx, color_hex="02124A", size="5"):
     """Adiciona borda inferior em todas as células de uma linha para separar grupos de variáveis."""
     for cell in table.rows[row_idx].cells:
         tc = cell._tc
@@ -198,7 +198,7 @@ def inserir_tabela_normal_doc(doc, df, largura_total=None):
                     r.font.name = "Roboto Condensed"
 
     # Borda inferior na última linha da tabela
-    set_row_bottom_border(table, rows, color_hex="02124A", size="12")
+    set_row_bottom_border(table, rows, color_hex="02124A", size="5")
 
     finalize_autofit(table)
     return table
@@ -286,7 +286,7 @@ def inserir_tabela_cruzamento_doc(doc, df, limites_variaveis=None, largura_total
             # na tabela Word, header é row 0, então data row (limite-1) = table row (limite)
             table_row = limite
             if 1 <= table_row <= rows:
-                set_row_bottom_border(table, table_row, color_hex="02124A", size="12")
+                set_row_bottom_border(table, table_row, color_hex="02124A", size="5")
 
     finalize_autofit(table)
     return table
