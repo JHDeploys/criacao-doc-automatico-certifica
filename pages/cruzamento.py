@@ -126,13 +126,12 @@ df[localidades] = df[localidades].apply(
     lambda x: x.astype(str)
                .str.strip()
                .str.replace(r"(?i)^\s*\(outros?\)\s*", "", regex=True)
-               .str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
                .str.replace(r"\s+", " ", regex=True)
                .str.strip()
 )
 
 sexo = df.columns[df.columns.str.lower().str.contains("sexo|genero|gênero")]
-idade = df.columns[df.columns.str.lower().str.contains(r"^idade$|faixa etaria|faixa etária|quantos anos|qual sua idade")]
+idade = df.columns[df.columns.str.lower().str.contains(r"\bidade\b|faixa[\s_]*(de[\s_]*)?etari[aá]|quantos anos|qual\s*(a\s*)?sua\s*idade", regex=True)]
 escolaridade = df.columns[df.columns.str.lower().str.contains("escolaridade|escola")]
 renda = df.columns[df.columns.str.lower().str.contains("renda")]
 religiao = df.columns[df.columns.str.lower().str.contains(r"religi[aã]o", case=False, regex=True)]
@@ -141,7 +140,6 @@ df[sociais] = df[sociais].apply(
     lambda x: x.astype(str)
                .str.strip()
                .str.replace(r"(?i)^\s*\(outros?\)\s*", "", regex=True)
-               .str.replace(r"^\d+\s*[-–]\s*", "", regex=True)
                .str.replace(r"\s+", " ", regex=True)
                .str.strip()
 )
