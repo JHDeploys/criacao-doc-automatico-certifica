@@ -466,7 +466,7 @@ def configurar_secao_horizontal(section, cabecalho: str):
 
     run = p_text.runs[0]
     run.bold = True
-    run.font.size = Pt(10)
+    run.font.size = Pt(8)
     run.font.color.rgb = RGBColor(120, 120, 120)
 
     # Logo direita
@@ -1031,8 +1031,25 @@ def gerar_relatorio_docx(cabecalho: str, titulo_subcapa: str) -> BytesIO:
     inserir_pagina_intencoes(doc)
     nova_secao_relatorio(doc, cabecalho)
 
-    inserir_graficos(st.session_state.graficos_doc_intencoes)
-    inserir_tabelas(st.session_state.tabelas_doc_intencoes)
+    # Estimuladas: apenas gráficos (primeiro)
+    graficos_estimuladas = [
+        item for item in st.session_state.graficos_doc_intencoes
+        if item.get("pagina") == "estimulada"
+    ]
+    inserir_graficos(graficos_estimuladas)
+
+    # Espontâneas: gráficos primeiro, depois tabelas
+    graficos_espontaneas = [
+        item for item in st.session_state.graficos_doc_intencoes
+        if item.get("pagina") == "espontanea"
+    ]
+    inserir_graficos(graficos_espontaneas)
+
+    tabelas_espontaneas = [
+        item for item in st.session_state.tabelas_doc_intencoes
+        if item.get("pagina") == "espontanea"
+    ]
+    inserir_tabelas(tabelas_espontaneas)
 
     # ======================
     # ABERTAS
