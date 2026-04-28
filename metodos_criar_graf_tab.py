@@ -319,6 +319,16 @@ def criar_graf_barras_lado(df, x, y, hue, tipo_cruzamento):
             ha="center", va="bottom", fontsize=font_size_barras, fontweight="bold"
         )
     
+    labels_x = ax.get_xticklabels()
+    n_labels = len(labels_x)
+    for lbl in labels_x:
+        if n_labels > 15:
+            lbl.set_rotation(90)
+        elif n_labels > 10:
+            lbl.set_rotation(75)
+        else:
+            lbl.set_rotation(0)
+
     leg = ax.legend(
     title=tipo_cruzamento,
     loc="best",
