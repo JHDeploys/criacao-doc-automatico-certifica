@@ -43,6 +43,12 @@ def ordenar(df, column):
     serie_norm = serie.str.upper()
     count_col = serie_norm.value_counts()
 
+    # Ignorar opções totalmente em branco ("pulos" ou NaNs)
+    if "" in count_col:
+        count_col = count_col.drop("")
+    if "NAN" in count_col:
+        count_col = count_col.drop("NAN")
+
     # ── Detecção de "branco/NS" por REGEX (robusto a qualquer variação) ──────
     import re
     _BRANCO_RE = re.compile(
