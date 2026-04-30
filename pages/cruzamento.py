@@ -33,7 +33,6 @@ def init_session_state():
 
 init_session_state()
 
-
 # ======================================================
 # 🔹 Funções utilitárias de salvamento (PADRONIZADAS)
 # ======================================================
@@ -46,7 +45,6 @@ def salvar_tabela(lista_destino, pagina, titulo, df_doc, limites_variaveis=None)
         "limites_variaveis": limites_variaveis or []
     })
 
-
 def salvar_grafico(lista_destino, pagina, titulo, grafico):
     lista_destino.append({
         "pagina": pagina,
@@ -54,7 +52,6 @@ def salvar_grafico(lista_destino, pagina, titulo, grafico):
         "grafico": grafico,
         "interpretacao": ""
     })
-
 
 # ======================================================
 # 🧹 Limpeza CONTROLADA (não automática!)
@@ -71,7 +68,6 @@ def limpar_estado_cruzamentos():
             if item["pagina"] != "cruzamento"
         ]
 
-
 # ======================================================
 # 🧠 Interface
 # ======================================================
@@ -81,7 +77,6 @@ if st.button("🧹 Limpar cruzamentos desta página"):
     limpar_estado_cruzamentos()
     st.success("Cruzamentos removidos com sucesso.")
     st.rerun()
-
 
 # ======================================================
 # 📂 Upload de dados
@@ -135,7 +130,7 @@ idade = df.columns[df.columns.str.lower().str.contains(r"\bidade\b|faixa[\s_]*(d
 escolaridade = df.columns[df.columns.str.lower().str.contains("escolaridade|escola")]
 renda = df.columns[df.columns.str.lower().str.contains("renda")]
 religiao = df.columns[df.columns.str.lower().str.contains(r"religi[aã]o", case=False, regex=True)]
-sociais = pd.Index(list(sexo) + list(idade) + list(religiao) + list(escolaridade) + list(renda)).unique()
+sociais = pd.Index(list(sexo) + list(idade) + list(escolaridade) + list(renda) + list(religiao)).unique()
 df[sociais] = df[sociais].apply(
     lambda x: x.astype(str)
                .str.strip()
@@ -169,7 +164,6 @@ st.subheader("📌 Colunas Disponíveis para Cruzamento")
 st.dataframe(pd.DataFrame(col_alvo.columns, columns=["Colunas"]), height=300)
 st.divider()
 
-
 # ======================================================
 # 📍 Cruzamento por Localidades
 # ======================================================
@@ -192,7 +186,6 @@ for coluna in col_alvo:
     )
 
     baixar_excel(tabela, coluna, f"localidades_{coluna}")
-
 
 # ======================================================
 # 🧑 Cruzamento por Questões Sociais
