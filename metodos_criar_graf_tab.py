@@ -167,11 +167,20 @@ def tabela_cruzamento(df_in, column1, column2):
     # ── Criação e Normalização da Tabela ─────────────────────────────────────
     grupo = df.groupby([column1, column2]).size().reset_index(name="count")
     table = grupo.pivot(index=column1, columns=column2, values="count").fillna(0)
-    table = table.div(table.sum(axis=1), axis=0) * 100
+    
+    # Manter apenas as colunas válidas (ignorando pulos/brancos irrelevantes)
+    colunas_ordenadas = [col for col in ordem if col in table.columns]
+    table = table[colunas_ordenadas]
+    
+    # Calcular porcentagem em cima das respostas válidas
+    somas_validas = table.sum(axis=1)
+    # Evitar divisão por zero caso a linha inteira seja vazia
+    somas_validas = somas_validas.replace(0, 1)
+    
+    table = table.div(somas_validas, axis=0) * 100
     table["TOTAL"] = 100
 
     # ── Ordenação das colunas (respostas da questão alvo) ────────────────────
-    colunas_ordenadas = [col for col in ordem if col in table.columns]
     table = table[colunas_ordenadas + ["TOTAL"]]
 
     # ── Ordenação das LINHAS pelo prefixo numérico ───────────────────────────
@@ -216,15 +225,22 @@ def agrupar_tabelas(df, variaveis, target):
     if df_temp[target].dtype == 'object':
         df_temp[target] = df_temp[target].astype(str).str.strip().str.replace(r"^\d+\s-\s", "", regex=True)
     
-    # Calcula a distribuição percentual numérica
-    total_counts = df_temp[target].value_counts(normalize=True).mul(100).round(1)
+    # Calcula a distribuição percentual numérica baseada APENAS nas opções válidas
+    ordem_target, count_col = ordenar(df_temp, target)
+    if count_col.sum() > 0:
+        total_counts = count_col.div(count_col.sum()).mul(100).round(1)
+    else:
+        total_counts = pd.Series(dtype=float)
     
     total_row_data = {"VARIÁVEIS": "TOTAL"}
     
     # Preenche os valores do TOTAL GERAL nas colunas de target
     for col in final_table.columns[1:-1]:
-        # Usa .get() para obter o valor numérico. Usa 0.0 se não existir.
-        total_row_data[col] = total_counts.get(col, 0.0) 
+        # Tenta pegar no formato maiúsculo primeiro (pois ordenar retorna upper)
+        valor = total_counts.get(str(col).upper(), None)
+        if valor is None:
+            valor = total_counts.get(col, 0.0)
+        total_row_data[col] = valor 
         
     total_row_data["TOTAL"] = 100 # O total geral é sempre 100.0%
 
