@@ -2,6 +2,7 @@ import streamlit as st
 import re
 import unicodedata
 import matplotlib.pyplot as plt
+import time
 
 from metodos_auxiliares import ler_arquivo, baixar_excel, baixar_grafico
 from metodos_criar_graf_tab import (
@@ -173,6 +174,7 @@ for i, col in enumerate(espontaneas):
             f"{title}",
             df_doc
         )
+    time.sleep(0.05)
 
 # ======================================================
 # ➕ Espontâneas manuais
