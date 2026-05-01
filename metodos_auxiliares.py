@@ -5,7 +5,6 @@ import re
 import unicodedata
 
 #------------------Funções Auxiliares--------------
-
 #Ler Arquivo
 @st.cache_data
 def ler_arquivo(arquivo):
@@ -50,7 +49,6 @@ def ordenar(df, column):
         count_col = count_col.drop("NAN")
 
     # ── Detecção de "branco/NS" por REGEX (robusto a qualquer variação) ──────
-    import re
     _BRANCO_RE = re.compile(
         r"n[aã]o\s+sabe|n[aã]o\s+respondeu|branco|nulo|nenhum|"
         r"ningu[eé]m|ns\s*/\s*nr|n\s+respondeu|^\s*$",
@@ -234,8 +232,6 @@ def baixar_grafico(fig, nome, key):
         key=key
     )
 
-import re
-
 def limpar_nome_coluna(texto):
     if texto is None:
         return ""
@@ -343,7 +339,7 @@ def func_tab_interpretacao_candidato(
     for nome_candidato in resultados:
         st.subheader(f"Candidato(a): {nome_candidato}")
 
-        st.dataframe(resultados[nome_candidato], use_container_width=True)
+        st.dataframe(resultados[nome_candidato], width="stretch")
 
         baixar_excel(
             resultados[nome_candidato],
