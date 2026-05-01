@@ -1,6 +1,7 @@
 import streamlit as st
 import re
 import unicodedata
+import matplotlib.pyplot as plt
 
 from metodos_auxiliares import ler_arquivo, baixar_excel, baixar_grafico
 from metodos_criar_graf_tab import (
@@ -21,7 +22,6 @@ st.title("📊 Gráficos Espontâneos e Estimulados")
 
 PAGINA_ESPONTANEA = "espontanea"
 PAGINA_ESTIMULADA = "estimulada"
-
 
 # ======================================================
 # 🔹 Inicialização global do session_state (PADRÃO)
@@ -71,12 +71,10 @@ def limpar_estado_espontaneo_estimulada():
             if item["pagina"] not in {PAGINA_ESPONTANEA, PAGINA_ESTIMULADA}
         ]
 
-
 if st.button("🧹 Limpar análises desta página"):
     limpar_estado_espontaneo_estimulada()
     st.success("Análises removidas com sucesso.")
     st.rerun()
-
 
 # ======================================================
 # 🔹 Utilitário
@@ -109,9 +107,8 @@ if df is None:
     st.info("📌 Por favor, faça o upload de um arquivo para começar.")
     st.stop()
 
-
 st.subheader("📄 Prévia do Dataset")
-st.dataframe(df.head(), use_container_width=True)
+st.dataframe(df.head(), width="stretch")
 st.divider()
 
 # ======================================================
@@ -140,9 +137,10 @@ for i, col in enumerate(espontaneas):
 
     st.write(title)
 
-    if df[col].nunique() <= 5:
+    if df[col].nunique() <= 10:
         grafico = grafico_barras_espontanea(df, col, col)
         st.pyplot(grafico)
+        plt.close(grafico)
 
         baixar_grafico(
             grafico,
@@ -160,7 +158,7 @@ for i, col in enumerate(espontaneas):
 
     else:
         df_doc, tabela = tabela_espontanea(df, col)
-        st.dataframe(tabela, use_container_width=True)
+        st.dataframe(tabela, width="stretch")
 
         baixar_excel(
             df_doc,
@@ -194,6 +192,7 @@ for i, col in enumerate(faltantes_espont):
     if df[col].nunique() <= 5:
         grafico = grafico_barras_espontanea(df, col, col)
         st.pyplot(grafico)
+        plt.close(grafico)
 
         baixar_grafico(
             grafico,
@@ -210,7 +209,7 @@ for i, col in enumerate(faltantes_espont):
         )
     else:
         df_doc, tabela = tabela_espontanea(df, col)
-        st.dataframe(tabela, use_container_width=True)
+        st.dataframe(tabela, width="stretch")
 
         baixar_excel(
             df_doc,
@@ -228,7 +227,6 @@ for i, col in enumerate(faltantes_espont):
 
 
 st.divider()
-
 
 # ======================================================
 # 📊 Estimuladas
@@ -256,6 +254,7 @@ for i, col in enumerate(estimuladas):
     st.write(title)
     grafico = grafico_barras_espontanea(df, col, col)
     st.pyplot(grafico)
+    plt.close(grafico)
 
     baixar_grafico(
         grafico,
@@ -286,6 +285,7 @@ for i, col in enumerate(faltantes_estimulada):
     st.write(title)
     grafico = grafico_barras_espontanea(df, col, col)
     st.pyplot(grafico)
+    plt.close(grafico)
 
     baixar_grafico(
         grafico,
