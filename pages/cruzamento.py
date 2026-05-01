@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from metodos_auxiliares import ler_arquivo, baixar_excel
 from metodos_criar_graf_tab import (
     agrupar_tabelas,
@@ -126,7 +127,7 @@ df[localidades] = df[localidades].apply(
 )
 
 sexo = df.columns[df.columns.str.lower().str.contains("sexo|genero|gênero")]
-idade = df.columns[df.columns.str.lower().str.contains(r"\bidade\b|faixa[\s_]*(de[\s_]*)?etari[aá]|quantos anos|qual\s*(a\s*)?sua\s*idade", regex=True)]
+idade = df.columns[df.columns.str.lower().str.contains(r"\bidade\b|faixa[\s_]*(?:de[\s_]*)?etari[aá]|quantos anos|qual\s*(?:a\s*)?sua\s*idade", regex=True)]
 escolaridade = df.columns[df.columns.str.lower().str.contains("escolaridade|escola")]
 renda = df.columns[df.columns.str.lower().str.contains("renda")]
 religiao = df.columns[df.columns.str.lower().str.contains(r"religi[aã]o", case=False, regex=True)]
@@ -249,6 +250,7 @@ for coluna in col_alvo:
 
         graf = criar_graf_barras_lado(df_plot, "Resposta", "Percentual", "VARIÁVEIS", nome_var)
         st.pyplot(graf)
+        plt.close(graf)
 
         salvar_grafico(
         st.session_state.graficos_doc_questoes,
