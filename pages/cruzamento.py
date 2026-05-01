@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 from metodos_auxiliares import ler_arquivo, baixar_excel
 from metodos_criar_graf_tab import (
     agrupar_tabelas,
@@ -187,6 +188,7 @@ for coluna in col_alvo:
     )
 
     baixar_excel(tabela, coluna, f"localidades_{coluna}")
+    time.sleep(0.05)
 
 # ======================================================
 # 🧑 Cruzamento por Questões Sociais
@@ -210,6 +212,7 @@ for coluna in col_alvo:
     )
 
     baixar_excel(tabela, coluna, f"sociais_{coluna}")
+    time.sleep(0.05)
 
 # ======================================================
 # 📊 Gráficos por Sexo
@@ -259,6 +262,7 @@ for coluna in col_alvo:
         f"{titulo} X {nome_var}",
         graf
     )
+        time.sleep(0.05)
 
 # ======================================================
 # 🔧 Cruzamento Personalizado
@@ -296,6 +300,7 @@ def bloco_cruzamento(idx):
                 df_doc,
                 limites_variaveis=limites
             )
+            time.sleep(0.05)
 
 for i in range(1, st.session_state.contador_cruzamentos + 1):
     bloco_cruzamento(i)
