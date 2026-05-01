@@ -111,7 +111,7 @@ def grafico_barras_estimulada(df, colum, title):
                     break
         novos_labels.append(texto)
 
-    ax.set_xticks(ax.get_xticks())
+    ax.set_xticks(range(len(novos_labels)))
     ax.set_xticklabels(novos_labels, fontsize=11)
     plt.yticks([])
     ax.set_frame_on(False)
@@ -318,7 +318,7 @@ def criar_graf_barras_lado(df, x, y, hue, tipo_cruzamento):
                     break
         novos_labels.append(texto)
 
-    ax.set_xticks(ax.get_xticks())
+    ax.set_xticks(range(len(novos_labels)))
     ax.set_xticklabels(novos_labels, fontsize=11)
     plt.yticks([])
     ax.set_frame_on(False)
