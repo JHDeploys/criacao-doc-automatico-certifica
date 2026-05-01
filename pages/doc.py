@@ -23,7 +23,6 @@ def init_session_state_relatorio_page():
         if k not in st.session_state:
             st.session_state[k] = v
 
-
 init_session_state_relatorio_page()
 
 # ======================================================
@@ -102,8 +101,7 @@ with st.container():
             """,
             unsafe_allow_html=True
         )
-
-
+        
 st.divider()
 
 def slug_filename(texto: str, max_len: int = 120) -> str:
@@ -125,7 +123,7 @@ nome_doc = slug_filename(titulo_subcapa) + ".docx"
 # ======================================================
 st.markdown("### 📤 Exportação")
 
-if st.button("📄 Gerar relatório Word", use_container_width=True):
+if st.button("📄 Gerar relatório Word", width="stretch"):
     with st.spinner("Gerando relatório Word..."):
         docx_buffer = gerar_relatorio_docx(cabecalho, titulo_subcapa)
 
@@ -134,5 +132,5 @@ if st.button("📄 Gerar relatório Word", use_container_width=True):
         data=docx_buffer,
         file_name=nome_doc,
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        use_container_width=True
+        width="stretch"
     )
