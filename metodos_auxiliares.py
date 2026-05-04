@@ -54,6 +54,14 @@ def ordenar(df, column):
         r"ningu[eé]m|ns\s*/\s*nr|n\s+respondeu|^\s*$",
         re.IGNORECASE
     )
+    _OUTRO_RE = re.compile(
+        r"outr[oa]s",
+        r"outr[oa]",
+        re.IGNORECASE
+    )
+
+    def _eh_outro(valor):
+        return bool(_OUTRO_RE.search(str(valor).strip()))
 
     def _eh_branco(valor):
         return bool(_BRANCO_RE.search(str(valor).strip()))
@@ -65,9 +73,11 @@ def ordenar(df, column):
     # ⚠️ LISTA ORDENADA (ordem semântica)
     escala_avaliacao = [
         "ÓTIMA", "ÓTIMO",
+        "MUITO BOA", "MUITO BOM",
         "BOA", "BOM",
         "REGULAR",
         "RUIM",
+        "MUITO RUIM",
         "PÉSSIMA", "PÉSSIMO",
         "APROVA", "APROVADO",
         "DESAPROVA", "DESAPROVADO",
@@ -85,33 +95,36 @@ def ordenar(df, column):
         # Ordem fixa e controlada pela escala
         ordem_principal = encontrados
 
-        outros = count_col[
+        opcoes_extra_fora_escala = count_col[
             ~count_col.index.map(_eh_branco) &
-            ~count_col.index.isin(ordem_principal)
+            ~count_col.index.isin(ordem_principal) &
+            ~count_col.index.map(_eh_outro)
         ].sort_index()
 
+        outros_idx = [b for b in count_col.index if _eh_outro(b)]
         brancos_idx = [b for b in count_col.index if _eh_branco(b)]
         brancos_primeiro = [b for b in brancos_idx if _tem_branco_literal(b)]
         resto_indecisos  = [b for b in brancos_idx if not _tem_branco_literal(b)]
 
-        ordem = ordem_principal + list(outros.index) + brancos_primeiro + resto_indecisos
+        ordem = ordem_principal + list(opcoes_extra_fora_escala.index) + list(outros_idx) + brancos_primeiro + resto_indecisos
 
     else:
-        # 🔥 RANKING por frequência — brancos sempre no final
+        # 🔥 RANKING por frequência — brancos e outros sempre no final
         candidatos = (
-            count_col[~count_col.index.map(_eh_branco)]
+            count_col[~count_col.index.map(_eh_branco) & ~count_col.index.map(_eh_outro)]
             .sort_values(ascending=False)
         )
 
+        outros_idx = [b for b in count_col.index if _eh_outro(b)]
         brancos_idx = [b for b in count_col.index if _eh_branco(b)]
         brancos_primeiro = [b for b in brancos_idx if _tem_branco_literal(b)]
         resto_indecisos  = [b for b in brancos_idx if not _tem_branco_literal(b)]
 
-        ordem = list(candidatos.index) + brancos_primeiro + resto_indecisos
+        ordem = list(candidatos.index) + list(outros_idx) + brancos_primeiro + resto_indecisos
 
     return ordem, count_col
 
-    # Função para gerar DataFrame ordenado e com porcentagens
+# Função para gerar DataFrame ordenado e com porcentagens
 def plot_ordem_porcentagem(df, column):
     ordem, count_col = ordenar(df, column)
         
