@@ -50,7 +50,7 @@ def ordenar(df, column):
 
     # ── Detecção de "branco/NS" por REGEX (robusto a qualquer variação) ──────
     _BRANCO_RE = re.compile(
-        r"n[aã]o\s+sabe|n[aã]o\s+respondeu|branco|nulo|nenhum|"
+        r"n[aã]o\s+sabe|n[aã]o\s+respondeu|branco\s*/\s*nulo|^\s*branco\s*(?:\(.*\))?\s*$|^\s*nulo\s*(?:\(.*\))?\s*$|nenhum|"
         r"ningu[eé]m|ns\s*/\s*nr|n\s+respondeu|^\s*$",
         re.IGNORECASE
     )
