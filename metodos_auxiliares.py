@@ -95,9 +95,7 @@ def ordenar(df, column):
         ordem_principal = encontrados
 
         opcoes_extra_fora_escala = count_col[
-            ~count_col.index.map(_eh_branco) &
-            ~count_col.index.isin(ordem_principal) &
-            ~count_col.index.map(_eh_outro)
+            [not _eh_branco(x) and x not in ordem_principal and not _eh_outro(x) for x in count_col.index]
         ].sort_index()
 
         outros_idx = [b for b in count_col.index if _eh_outro(b)]
@@ -110,7 +108,7 @@ def ordenar(df, column):
     else:
         # 🔥 RANKING por frequência — brancos e outros sempre no final
         candidatos = (
-            count_col[~count_col.index.map(_eh_branco) & ~count_col.index.map(_eh_outro)]
+            count_col[[not _eh_branco(x) and not _eh_outro(x) for x in count_col.index]]
             .sort_values(ascending=False)
         )
 
