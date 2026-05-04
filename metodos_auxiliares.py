@@ -55,8 +55,7 @@ def ordenar(df, column):
         re.IGNORECASE
     )
     _OUTRO_RE = re.compile(
-        r"outr[oa]s",
-        r"outr[oa]",
+        r"outr[oa]s?",
         re.IGNORECASE
     )
 
