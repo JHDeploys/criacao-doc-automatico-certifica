@@ -793,6 +793,7 @@ def inserir_sumario_automatico(doc, titulo="SUMÁRIO"):
     run.bold = True
     run.font.size = Pt(18)
     run.font.color.rgb = RGBColor(2, 18, 74)
+    run.font.name = "Roboto Condensed"
     # Define o recuo de 20 pontos após o título
     p.paragraph_format.space_after = Pt(20) 
 
@@ -1085,3 +1086,4 @@ def gerar_relatorio_docx(cabecalho: str, titulo_subcapa: str) -> BytesIO:
     doc.save(buffer)
     buffer.seek(0)
     return buffer
+    
